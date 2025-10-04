@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bizos - Smart Business Dashboard</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0; padding: 0;
+      background: #f9fafb;
+      color: #111827;
+    }
+
+    /* Header */
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 30px;
+      background: white;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+    nav h1 {
+      font-size: 22px;
+      color: #4f46e5;
+    }
+    nav a {
+      margin-left: 20px;
+      text-decoration: none;
+      color: #374151;
+      font-weight: 500;
+    }
+    nav a:hover {
+      color: #4f46e5;
+    }
+
+    /* Hero Section */
+    .hero {
+      text-align: center;
+      padding: 80px 20px;
+      background: linear-gradient(135deg, #4f46e5, #9333ea);
+      color: white;
+    }
+    .hero h2 {
+      font-size: 2.5em;
+      margin-bottom: 15px;
+    }
+    .hero p {
+      font-size: 1.2em;
+      margin-bottom: 25px;
+    }
+    .btn {
+      padding: 14px 28px;
+      background: #facc15;
+      color: black;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: bold;
+      transition: 0.3s;
+    }
+    .btn:hover {
+      background: #f59e0b;
+    }
+
+    /* Features */
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      padding: 60px 20px;
+      max-width: 1100px;
+      margin: auto;
+    }
+    .card {
+      background: white;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+      text-align: center;
+    }
+    .card h3 {
+      margin-bottom: 10px;
+      color: #4f46e5;
+    }
+    .card p {
+      font-size: 0.95em;
+      color: #374151;
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      padding: 20px;
+      background: #111827;
+      color: white;
+      margin-top: 50px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav>
+    <h1>Bizos</h1>
+    <div>
+      <a href="#">Home</a>
+      <a href="#">About</a>
+      <a href="#">Contact</a>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <h2>🚀 Dashboard Pintar untuk Bisnis Anda</h2>
+    <p>Kelola bisnis lebih mudah, cepat, dan modern dengan Bizos.</p>
+    <a href="mailto:your@email.com" class="btn">Coba Gratis</a>
+  </section>
+
+  <!-- Features -->
+  <section class="features">
+    <div class="card">
+      <h3>📊 Analitik Real-time</h3>
+      <p>Pantau penjualan, pelanggan, dan performa bisnis dalam satu dashboard.</p>
+    </div>
+    <div class="card">
+      <h3>💻 Mudah Digunakan</h3>
+      <p>Antarmuka yang simpel dan cepat dipelajari untuk semua orang.</p>
+    </div>
+    <div class="card">
+      <h3>🔒 Keamanan Data</h3>
+      <p>Data bisnis Anda aman dengan enkripsi dan proteksi terbaik.</p>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <p>© 2025 Bizos. All Rights Reserved.</p>
+  </footer>
+
+</body>
+</html>
