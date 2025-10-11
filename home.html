@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>FluentBiz — Home</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Poppins:wght@600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root{
+      --bg:#f8fbff;
+      --panel:#ffffff;
+      --accent1:#6C63FF;
+      --accent2:#2575FC;
+      --muted:#6b7280;
+      --card-border:rgba(7,16,42,0.04);
+      --radius:12px;
+    }
+    *{box-sizing:border-box;font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;}
+    body{margin:0;background:linear-gradient(180deg,var(--bg),#ffffff);color:#07102a}
+    .wrap{max-width:1200px;margin:24px auto;padding:18px}
+    .layout{display:grid;grid-template-columns:240px 1fr;gap:18px;align-items:start}
+    /* Sidebar */
+    .sidebar{background:var(--panel);border-radius:12px;padding:16px;border:1px solid var(--card-border);height:calc(100vh - 96px);position:sticky;top:18px}
+    .logo{display:flex;gap:10px;align-items:center;margin-bottom:12px}
+    .logo .mark{width:36px;height:36px;border-radius:8px;background:linear-gradient(135deg,var(--accent1),var(--accent2));display:flex;align-items:center;justify-content:center;color:white;font-weight:700}
+    .nav{display:flex;flex-direction:column;gap:8px;margin-top:8px}
+    .nav a{padding:10px;border-radius:8px;color:var(--muted);text-decoration:none}
+    .nav a.active{background:rgba(108,99,255,0.08);color:var(--accent1);font-weight:700}
+
+    /* Main */
+    .main{min-height:80vh}
+    .top{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px}
+    .welcome{background:var(--panel);padding:14px;border-radius:10px;border:1px solid var(--card-border)}
+    .metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:12px}
+    .metric{background:var(--panel);padding:12px;border-radius:8px;border:1px solid var(--card-border)}
+    .metric .num{font-weight:800;font-size:18px}
+    .card{background:var(--panel);padding:14px;border-radius:10px;border:1px solid var(--card-border);margin-bottom:12px}
+
+    /* small */
+    .small{color:var(--muted);font-size:13px}
+
+    @media(max-width:980px){
+      .layout{grid-template-columns:1fr}
+      .sidebar{position:static;height:auto}
+      .metrics{grid-template-columns:repeat(2,1fr)}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="layout">
+      <aside class="sidebar">
+        <div class="logo">
+          <div class="mark">FB</div>
+          <div>
+            <div style="font-weight:700">FluentBiz</div>
+            <div class="small">Analitik Otomatis</div>
+          </div>
+        </div>
+
+        <nav class="nav" id="sideNav">
+          <a href="#" data-page="home" class="active" onclick="navTo(event,'home')">🏠 Home</a>
+          <a href="#" data-page="analytics" onclick="navTo(event,'analytics')">📊 Analytics</a>
+          <a href="#" data-page="integrations" onclick="navTo(event,'integrations')">🔗 Integrations</a>
+          <a href="#" data-page="subscriptions" onclick="navTo(event,'subscriptions')">💳 Subscriptions</a>
+          <a href="#" data-page="customers" onclick="navTo(event,'customers')">👥 Customers</a>
+          <a href="#" data-page="settings" onclick="navTo(event,'settings')">⚙️ Settings</a>
+          <a href="#" style="margin-top:8px;color:#d14343" onclick="doLogout()">🚪 Logout</a>
+        </nav>
+
+        <div style="margin-top:14px" class="small">
+          <div>Autopilot</div>
+          <div style="display:flex;gap:8px;margin-top:8px">
+            <button class="btn ghost" onclick="runAutopilotNow()">Run</button>
+            <button class="btn primary" id="autoToggle" onclick="toggleAutopilot()">Enable</button>
+          </div>
+        </div>
+      </aside>
+
+      <main class="main">
+        <!-- Home page -->
+        <div id="home" class="page">
+          <div class="top">
+            <div class="welcome">
+              <div id="welcomeTitle" style="font-weight:800">Selamat datang, Admin FluentBiz 👋</div>
+              <div id="welcomeSmall" class="small">FluentBiz siap menganalisis data Anda secara otomatis.</div>
+            </div>
+            <div style="text-align:right">
+              <div class="small">Trial</div>
+              <div id="trialBadge" style="font-weight:800">—</div>
+            </div>
+          </div>
+
+          <div class="metrics">
+            <div class="metric">
+              <div class="small">Total Revenue (30d)</div>
+              <div class="num" id="kRevenue">—</div>
+            </div>
+            <div class="metric">
+              <div class="small">Orders Today</div>
+              <div class="num" id="kOrders">—</div>
+            </div>
+            <div class="metric">
+              <div class="small">Active Users</div>
+              <div class="num" id="kUsers">—</div>
+            </div>
+            <div class="metric">
+              <div class="small">Growth</div>
+              <div class="num" id="kGrowth">—</div>
+            </div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:2fr 1fr;gap:12px;margin-top:12px">
+            <div class="card">
+              <div style="display:flex;justify-content:space-between;align-items:center">
+                <div>
+                  <div style="font-weight:800">Tren Penjualan</div>
+                  <div class="small">Performa minggu ini</div>
+                </div>
+                <div class="small">Updated 5 menit lalu</div>
+              </div>
+              <canvas id="salesChart" height="180" style="margin-top:12px"></canvas>
+            </div>
+
+            <div>
+              <div class="card">
+                <div style="font-weight:800">Insight</div>
+                <div class="small" id="aiInsight" style="margin-top:8px">Produk kamu naik 12% minggu ini! Pertahankan strategi saat ini.</div>
+              </div>
+              <div class="card" style="margin-top:12px">
+                <div style="font-weight:800">Integrasi Aktif</div>
+                <div class="small" id="activeIntegrations">Belum ada integrasi</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Analytics -->
+        <div id="analytics" class="page" style="display:none">
+          <div class="card">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <div style="font-weight:800">Analytics</div>
+              <div class="small">Export & filters</div>
+            </div>
+            <div style="margin-top:12px">
+              <canvas id="analyticsChart" height="140"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Integrations -->
+        <div id="integrations" class="page" style="display:none">
+          <div class="card">
+            <div style="font-weight:800">Integrations</div>
+            <div class="small" style="margin-top:8px">Hubungkan Shopee, Tokopedia, ERP, atau App SDK</div>
+            <div style="margin-top:12px;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px">
+              <div class="card">
+                <div style="font-weight:700">Shopee</div>
+                <div class="small">OAuth / API</div>
+                <div style="margin-top:10px"><button class="btn primary" onclick="simulateConnect('seller','shopee')">Demo connect</button></div>
+              </div>
+              <div class="card">
+                <div style="font-weight:700">ERP / CSV</div>
+                <div class="small">Upload CSV</div>
+                <div style="margin-top:10px"><button class="btn primary" onclick="simulateConnect('company','csv')">Demo connect</button></div>
+              </div>
+              <div class="card">
+                <div style="font-weight:700">App SDK</div>
+                <div class="small">Integrasi SDK</div>
+                <div style="margin-top:10px"><button class="btn primary" onclick="simulateConnect('app','sdk')">Demo connect</button></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Subscriptions -->
+        <div id="subscriptions" class="page" style="display:none">
+          <div class="card">
+            <div style="font-weight:800">Subscriptions</div>
+            <div class="small" style="margin-top:8px">Trial 7 hari — hubungkan Stripe/Midtrans untuk produksi</div>
+            <div style="margin-top:12px;display:flex;gap:12px">
+              <div style="flex:1" class="card">
+                <div style="font-weight:700">Free Trial</div>
+                <div class="small">7 hari</div>
+                <div style="margin-top:8px"><button class="btn primary" onclick="activateTrial()">Activate</button></div>
+              </div>
+              <div style="flex:1" class="card">
+                <div style="font-weight:700">Pro</div>
+                <div class="small">Rp199.000 / bulan</div>
+                <div style="margin-top:8px"><button class="btn primary" onclick="subscribe()">Subscribe</button></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Customers -->
+        <div id="customers" class="page" style="display:none">
+          <div class="card">
+            <div style="font-weight:800">Customers</div>
+            <div class="small" style="margin-top:8px">Daftar pelanggan (demo)</div>
+            <table style="width:100%;margin-top:12px;border-collapse:collapse">
+              <thead><tr><th style="text-align:left;padding:8px">ID</th><th style="text-align:left;padding:8px">Name</th><th style="text-align:left;padding:8px">Joined</th></tr></thead>
+              <tbody id="customerTable"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Settings -->
+        <div id="settings" class="page" style="display:none">
+          <div class="card">
+            <div style="font-weight:800">Settings</div>
+            <div class="small" style="margin-top:8px">Profil & preferensi</div>
+            <div style="margin-top:12px">
+              <label class="small">Nama</label>
+              <input id="profileName" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--card-border);margin-top:8px"/>
+              <div style="margin-top:10px"><button class="btn primary" onclick="saveProfile()">Simpan</button></div>
+            </div>
+          </div>
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+<script>
+/* Home logic: require login (localStorage demo). If no user => redirect to index.html */
+const current = JSON.parse(localStorage.getItem('fluentbiz_current')||'null');
+if(!current){ location.href = 'index.html'; }
+const BACKEND_BASE = 'https://YOUR_BACKEND_DOMAIN/api';
+
+/* Fill header & trial */
+document.getElementById('welcomeTitle').innerText = `Selamat datang, ${current.name || current.email.split('@')[0]} 👋`;
+const ts = localStorage.getItem('fluentbiz_trialStart');
+if(ts){
+  const left = Math.max(0, 7 - Math.floor((Date.now() - new Date(ts))/(1000*60*60*24)));
+  document.getElementById('trialBadge').innerText = `${left} hari tersisa`;
+} else {
+  document.getElementById('trialBadge').innerText = '—';
+}
+
+/* sample data & render */
+function formatRp(n){ try{return 'Rp '+Number(n).toLocaleString('id-ID'); }catch(e){return n} }
+document.getElementById('kRevenue').innerText = formatRp(4200000);
+document.getElementById('kOrders').innerText = '128';
+document.getElementById('kUsers').innerText = '3,420';
+document.getElementById('kGrowth').innerText = '+12%';
+
+/* Sales chart */
+const salesCtx = document.getElementById('salesChart').getContext('2d');
+new Chart(salesCtx, {
+  type:'bar',
+  data:{ labels:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'], datasets:[{ label:'Revenue', data:[420000,480000,510000,470000,550000,620000,700000], backgroundColor:'#6C63FF' }]},
+  options:{ plugins:{legend:{display:false}}, responsive:true }
+});
+
+/* Analytics chart */
+const anCtx = document.getElementById('analyticsChart').getContext('2d');
+new Chart(anCtx, { type:'line', data:{ labels:['Jan','Feb','Mar','Apr','May','Jun'], datasets:[{ label:'Revenue', data:[100000,150000,170000,200000,240000,280000], borderColor:'#2575FC', fill:false }] }, options:{plugins:{legend:{display:false}},responsive:true}});
+
+/* customers demo */
+const customers = [{id:'#C001',name:'Andi',joined:'2025-08-10'},{id:'#C002',name:'Sari',joined:'2025-09-01'}];
+document.getElementById('customerTable').innerHTML = customers.map(c=>`<tr><td style="padding:8px">${c.id}</td><td style="padding:8px">${c.name}</td><td style="padding:8px">${c.joined}</td></tr>`).join('');
+
+/* navigation */
+function navTo(e, page){
+  e.preventDefault();
+  document.querySelectorAll('.page').forEach(p=>p.style.display='none');
+  document.getElementById(page).style.display='block';
+  document.querySelectorAll('#sideNav a').forEach(a=>a.classList.remove('active'));
+  e.currentTarget.classList.add('active');
+}
+window.navTo = navTo;
+
+/* simulate integration */
+function simulateConnect(type, key){
+  const id = `${key}_${Date.now()}`;
+  const store = JSON.parse(localStorage.getItem('fluentbiz_integrations')||'{}');
+  store[id] = { id, key, type, connectedAt:new Date().toISOString(), demo:true };
+  localStorage.setItem('fluentbiz_integrations', JSON.stringify(store));
+  document.getElementById('activeIntegrations').innerText = Object.keys(store).length ? Object.keys(store).map(k=>store[k].key+' ('+store[k].type+')').join(', ') : 'Belum ada integrasi';
+  alert('Connected (demo): '+key);
+}
+window.simulateConnect = simulateConnect;
+
+/* Autopilot demo */
+let autopilot = localStorage.getItem('fluentbiz_autopilot') === 'true';
+document.getElementById('autoToggle').innerText = autopilot ? 'Disable' : 'Enable';
+function toggleAutopilot(){
+  autopilot = !autopilot; localStorage.setItem('fluentbiz_autopilot', autopilot?'true':'false');
+  document.getElementById('autoToggle').innerText = autopilot ? 'Disable' : 'Enable';
+  if(autopilot) runAutopilotNow();
+}
+window.toggleAutopilot = toggleAutopilot;
+function runAutopilotNow(){
+  // try backend call, fallback demo
+  fetch(BACKEND_BASE + '/autopilot/run', { method:'POST' }).then(r=>r.json()).then(()=>{ alert('Autopilot triggered (backend)'); }).catch(()=>{ alert('Autopilot demo: analisis selesai'); document.getElementById('aiInsight').innerText = 'Produk kamu naik 12% minggu ini! Pertahankan strategi saat ini.'; });
+}
+window.runAutopilotNow = runAutopilotNow;
+
+/* subscription / trial actions (demo) */
+function activateTrial(){ localStorage.setItem('fluentbiz_trialStart', new Date().toISOString()); alert('Trial activated (demo)'); }
+function subscribe(){ alert('Subscribe flow placeholder — connect backend (Stripe/Midtrans)'); }
+
+/* profile */
+function saveProfile(){ const v = document.getElementById('profileName').value.trim(); if(!v) return alert('Masukkan nama'); const cur = JSON.parse(localStorage.getItem('fluentbiz_current')); cur.name = v; localStorage.setItem('fluentbiz_current', JSON.stringify(cur)); alert('Profile updated (demo)'); document.getElementById('welcomeTitle').innerText = `Selamat datang, ${v} 👋`; }
+
+/* logout */
+function doLogout(){ localStorage.removeItem('fluentbiz_current'); location.href='index.html'; }
+
+</script>
+</body>
+</html>
