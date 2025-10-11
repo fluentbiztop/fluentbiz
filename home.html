@@ -227,7 +227,7 @@
 /* Home logic: require login (localStorage demo). If no user => redirect to index.html */
 const current = JSON.parse(localStorage.getItem('fluentbiz_current')||'null');
 if(!current){ location.href = 'index.html'; }
-const BACKEND_BASE = 'https://YOUR_BACKEND_DOMAIN/api';
+const BACKEND_BASE = 'https://fluentbiz-backend.vercel.app/app'
 
 /* Fill header & trial */
 document.getElementById('welcomeTitle').innerText = `Selamat datang, ${current.name || current.email.split('@')[0]} 👋`;
