@@ -3,598 +3,609 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>FluentBiz | Smart Business Dashboard</title>
-
-  <!-- Fonts & Chart.js -->
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <title>FluentBiz — Smart Analytics (Premium)</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
   <style>
     :root{
-      --purple:#6C63FF; --blue:#2575FC; --bg:#f7f9ff; --card:#ffffff; --muted:#6b7280;
-      --glass: rgba(255,255,255,0.6);
+      --bg:#0f172a; --panel:#0b1220; --muted:#9aa6bf; --accent1:#6C63FF; --accent2:#2575FC;
+      --glass: rgba(255,255,255,0.03);
+      --card: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      --radius:14px;
     }
-    *{box-sizing:border-box;font-family:'Poppins',sans-serif}
-    html,body{height:100%;margin:0;background:linear-gradient(180deg,#f3f6ff,#eef2ff);color:#0f172a}
-    .topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;background:linear-gradient(90deg,var(--purple),var(--blue));color:#fff;position:sticky;top:0;z-index:40}
-    .brand{display:flex;align-items:center;gap:12px}
-    .brand .logo{font-weight:700;font-size:18px;letter-spacing:0.6px}
-    .top-actions{display:flex;gap:8px;align-items:center}
-    .lang-btn, .notif-btn{background:transparent;border:0;color:#fff;cursor:pointer;padding:8px;border-radius:8px}
-    .app{display:flex;gap:20px;max-width:1200px;margin:22px auto;padding:0 16px}
-    .sidebar{width:250px;min-width:220px;background:linear-gradient(180deg,rgba(255,255,255,0.9),rgba(255,255,255,0.85));border-radius:12px;padding:16px;box-shadow:0 10px 30px rgba(15,23,42,0.06);height:calc(100vh - 120px);position:sticky;top:80px}
-    .sidebar h3{margin:4px 0 12px 0;color:var(--purple)}
-    .nav-item{display:flex;align-items:center;gap:10px;padding:10px;border-radius:8px;cursor:pointer;color:#0f172a}
-    .nav-item:hover{background:rgba(37,99,235,0.06)}
-    .nav-item.active{background:linear-gradient(90deg,var(--purple),var(--blue));color:#fff}
-    .main{flex:1}
-    .card{background:var(--card);padding:16px;border-radius:12px;box-shadow:0 10px 30px rgba(15,23,42,0.06);margin-bottom:16px}
-    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
-    .hero{display:flex;gap:20px;align-items:center;background:linear-gradient(135deg,rgba(108,99,255,0.12),rgba(37,117,252,0.08));padding:18px;border-radius:12px}
-    .hero .logoBig{font-size:28px;font-weight:800;color:var(--purple)}
-    .cta{display:flex;gap:10px;margin-top:12px}
-    .btn{padding:8px 14px;border-radius:8px;border:0;cursor:pointer;font-weight:600}
-    .btn.primary{background:linear-gradient(90deg,var(--purple),var(--blue));color:#fff}
-    .btn.ghost{background:transparent;border:1px solid rgba(15,23,42,0.06);color:var(--muted)}
-    input,select,textarea{padding:10px;border-radius:8px;border:1px solid #e6eefc;width:100%;}
-    .center-wrap{display:flex;align-items:center;justify-content:center;height:calc(100vh - 140px)}
-    .login-box{width:420px;padding:22px;border-radius:12px;background:linear-gradient(180deg,rgba(255,255,255,0.85),rgba(255,255,255,0.8));box-shadow:0 10px 40px rgba(2,6,23,0.08)}
-    .small{font-size:13px;color:var(--muted)}
-    .mobile-nav{display:none;position:fixed;bottom:12px;left:50%;transform:translateX(-50%);background:rgba(255,255,255,0.95);padding:8px;border-radius:40px;box-shadow:0 8px 22px rgba(2,6,23,0.08)}
-    .mobile-nav button{background:transparent;border:0;padding:8px 12px;border-radius:10px;cursor:pointer}
-    @media(max-width:920px){
-      .app{flex-direction:column;padding-bottom:120px}
-      .sidebar{width:100%;height:auto;position:relative;top:0}
-      .mobile-nav{display:flex;gap:8px}
-    }
+    *{box-sizing:border-box;font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;}
+    body{margin:0;background:linear-gradient(180deg,#071029 0%, #07112a 60%);color:#e6eefc;min-height:100vh;}
+    .wrap{max-width:1280px;margin:20px auto;padding:16px;}
+    .topbar{display:flex;align-items:center;justify-content:space-between;padding:14px;border-radius:12px;background:linear-gradient(90deg,var(--accent1),var(--accent2));box-shadow:0 10px 30px rgba(2,6,23,0.6)}
+    .brand{display:flex;gap:14px;align-items:center}
+    .brand h1{margin:0;font-size:18px}
+    .controls{display:flex;gap:8px;align-items:center}
+    .btn{padding:10px 14px;border-radius:10px;border:0;cursor:pointer;font-weight:600}
+    .btn.ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);color:#e6eefc}
+    .btn.primary{background:linear-gradient(90deg,var(--accent1),var(--accent2));color:white}
+
+    .layout{display:grid;grid-template-columns:280px 1fr;gap:18px;margin-top:18px}
+    .sidebar{background:var(--panel);border-radius:var(--radius);padding:18px;min-height:70vh;box-shadow:0 10px 30px rgba(2,6,23,0.6)}
+    .nav{display:flex;flex-direction:column;gap:8px}
+    .nav .item{padding:10px;border-radius:10px;cursor:pointer;color:var(--muted)}
+    .nav .item.active{background:rgba(255,255,255,0.03);color:white;font-weight:700}
+
+    .main{min-height:70vh}
+    .card{background:var(--card);border-radius:12px;padding:16px;margin-bottom:12px;box-shadow:0 8px 30px rgba(2,6,23,0.6)}
+    .metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+    .metric{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:14px;border-radius:12px}
+    .metric .num{font-size:20px;font-weight:800}
+    .grid-2{display:grid;grid-template-columns:2fr 1fr;gap:12px}
     table{width:100%;border-collapse:collapse}
-    th,td{padding:8px;border-bottom:1px solid #eef3ff;text-align:left}
-    .muted-pill{background:#f1f5f9;padding:4px 8px;border-radius:999px;font-size:12px}
+    th,td{padding:8px;border-bottom:1px solid rgba(255,255,255,0.03);text-align:left;color:var(--muted)}
+    .muted{color:var(--muted);font-size:13px}
+
+    .integration-pill{display:inline-block;padding:6px 10px;border-radius:999px;background:rgba(255,255,255,0.02);font-weight:700}
+    .badge{background:rgba(255,255,255,0.04);padding:6px 8px;border-radius:8px;font-size:13px}
+
+    @media(max-width:980px){
+      .layout{grid-template-columns:1fr; padding-bottom:100px}
+      .metrics{grid-template-columns:repeat(1,1fr)}
+      .grid-2{grid-template-columns:1fr}
+    }
   </style>
 </head>
 <body>
-  <div class="topbar">
-    <div class="brand">
-      <div class="logoBig" style="color:white">FluentBiz</div>
-      <div class="small" style="color:rgba(255,255,255,0.9)">Empowering Global Sellers & Businesses</div>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="brand">
+        <div style="width:44px;height:44px;border-radius:10px;background:white;color:black;display:flex;align-items:center;justify-content:center;font-weight:800">FB</div>
+        <div>
+          <h1>FluentBiz — Smart Analytics</h1>
+          <div class="muted" id="top-sub">Insight-driven automation for sellers, companies & apps</div>
+        </div>
+      </div>
+      <div class="controls">
+        <div id="integrationBadge" class="badge">No integrations</div>
+        <button class="btn ghost" onclick="navigate('integrations')">Integrations</button>
+        <button class="btn primary" id="upgradeBtn" onclick="openSubscribe()">Upgrade</button>
+      </div>
     </div>
-    <div class="top-actions">
-      <button class="lang-btn" id="langToggle">ID</button>
-      <button class="notif-btn" id="notifBtn">🔔</button>
-      <div id="userMenu" style="color:#fff;font-weight:600">Guest</div>
-    </div>
-  </div>
 
-  <div class="app">
-    <aside class="sidebar card" id="sidebar">
-      <h3>Menu</h3>
-      <div class="nav-item active" data-page="home" onclick="navigate('home')">🏠 Home</div>
-      <div class="nav-item" data-page="integrations" onclick="navigate('integrations')">🔗 Integrations</div>
-      <div class="nav-item" data-page="dashboard" onclick="navigate('dashboard')">📊 Dashboard</div>
-      <div class="nav-item" data-page="subscriptions" onclick="navigate('subscriptions')">💳 Subscriptions</div>
-      <div class="nav-item" data-page="settings" onclick="navigate('settings')">⚙️ Settings</div>
-      <div class="nav-item" data-page="support" onclick="navigate('support')">💬 Support</div>
-      <div style="height:10px"></div>
-      <div style="margin-top:8px"><button class="btn primary" id="startNow" onclick="navigate('login')">Start Now</button></div>
-    </aside>
-
-    <main class="main">
-      <!-- HOME -->
-      <section id="home" class="card page active">
-        <div class="hero">
-          <div style="flex:1">
-            <div style="font-size:20px;font-weight:700;color:var(--purple)">Satu Platform. Semua Data Bisnis.</div>
-            <h1 style="margin-top:6px">FluentBiz — Smart Business Dashboard</h1>
-            <p class="small" style="margin-top:8px;max-width:640px">FluentBiz menggabungkan marketplace, sistem perusahaan dan aplikasi digital ke dalam satu dashboard cerdas. Analitik, laporan, dan automasi — semuanya mudah diakses.</p>
-            <div class="cta">
-              <button class="btn primary" onclick="navigate('login')">Mulai Sekarang</button>
-              <button class="btn ghost" onclick="navigate('integrations')">Lihat Integrations</button>
+    <div class="layout">
+      <aside class="sidebar">
+        <div style="margin-bottom:12px">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <div style="font-weight:800">Hello, <span id="userShort">Guest</span></div>
+              <div class="muted" id="trialInfo">Trial: —</div>
             </div>
-            <div style="margin-top:10px;">
-              <span class="muted-pill">Trial 7 hari</span>
-              <span class="muted-pill" id="userRolePill" style="margin-left:8px">Role: Guest</span>
-            </div>
-          </div>
-          <div style="width:360px">
-            <div style="background:linear-gradient(90deg,rgba(108,99,255,0.08),rgba(37,117,252,0.06));padding:12px;border-radius:12px">
-              <h3 style="margin:0">Visi & Misi</h3>
-              <p class="small" style="margin-top:6px">Visi: Menjadi pusat data bisnis global. Misi: Mempermudah integrasi & menampilkan insight yang bermakna.</p>
+            <div style="text-align:right">
+              <div class="muted">Plan</div>
+              <div style="font-weight:800">Free</div>
             </div>
           </div>
         </div>
 
-        <div style="margin-top:12px" class="grid">
-          <div class="card">
-            <h4>Untuk Seller Online</h4><p class="small">Pantau penjualan, stok, dan performa listing dari Shopee, Tokopedia, Lazada, dan TikTok Shop.</p>
-          </div>
-          <div class="card">
-            <h4>Untuk Perusahaan</h4><p class="small">Laporan cabang, produksi, dan KPI untuk manajemen senior.</p>
-          </div>
-          <div class="card">
-            <h4>Untuk Aplikasi</h4><p class="small">Analitik DAU, retention, dan revenue untuk aplikasi & game.</p>
-          </div>
-        </div>
-      </section>
-
-      <!-- INTEGRATIONS -->
-      <section id="integrations" class="card page" style="display:none">
-        <h2>Integrations</h2>
-        <p class="small">Hubungkan marketplace atau sistem perusahaan. (Demo: klik connect untuk simulasi)</p>
-        <div class="grid" style="margin-top:12px">
-          <div class="card">
-            <h4>Shopee</h4><p class="small">Partner API / OAuth</p>
-            <button class="btn primary" onclick="simulateConnect('shopee')">Connect Shopee</button>
-            <div id="status-shopee" class="small" style="margin-top:8px;color:green"></div>
-          </div>
-          <div class="card">
-            <h4>Tokopedia</h4><p class="small">Partner API / OAuth</p>
-            <button class="btn primary" onclick="simulateConnect('tokopedia')">Connect Tokopedia</button>
-            <div id="status-tokopedia" class="small" style="margin-top:8px;color:green"></div>
-          </div>
-          <div class="card">
-            <h4>Lazada</h4><p class="small">Open Platform</p>
-            <button class="btn primary" onclick="simulateConnect('lazada')">Connect Lazada</button>
-            <div id="status-lazada" class="small" style="margin-top:8px;color:green"></div>
-          </div>
-          <div class="card">
-            <h4>TikTok Shop</h4><p class="small">Partner API</p>
-            <button class="btn primary" onclick="simulateConnect('tiktok')">Connect TikTok Shop</button>
-            <div id="status-tiktok" class="small" style="margin-top:8px;color:green"></div>
-          </div>
-          <div class="card">
-            <h4>Perusahaan (ERP / CSV)</h4><p class="small">Upload CSV / Connect ERP</p>
-            <input type="file" id="uploadCsv" accept=".csv" />
-            <button class="btn primary" onclick="simulateConnect('company')">Connect Company</button>
-            <div id="status-company" class="small" style="margin-top:8px;color:green"></div>
-          </div>
-          <div class="card">
-            <h4>Aplikasi (SDK / API)</h4><p class="small">Connect App Analytics</p>
-            <button class="btn primary" onclick="simulateConnect('app')">Connect App</button>
-            <div id="status-app" class="small" style="margin-top:8px;color:green"></div>
-          </div>
-        </div>
-      </section>
-
-      <!-- DASHBOARD -->
-      <section id="dashboard" class="page" style="display:none">
-        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px">
-          <div>
-            <h2>Dashboard</h2>
-            <div class="small" id="dash-sub">Ringkasan performa</div>
-          </div>
-          <div style="display:flex;gap:8px;align-items:center">
-            <div class="small">Trial sisa: <strong id="trialDays">—</strong></div>
-            <button class="btn ghost" onclick="openSubscribe()">Upgrade</button>
-          </div>
+        <div style="margin-top:8px" class="nav">
+          <div class="item active" data-page="home" onclick="navigate('home')">Overview</div>
+          <div class="item" data-page="dashboard" onclick="navigate('dashboard')">Dashboard</div>
+          <div class="item" data-page="integrations" onclick="navigate('integrations')">Integrations</div>
+          <div class="item" data-page="subscriptions" onclick="navigate('subscriptions')">Subscriptions</div>
+          <div class="item" data-page="settings" onclick="navigate('settings')">Settings</div>
+          <div class="item" data-page="support" onclick="navigate('support')">Support</div>
         </div>
 
-        <div class="grid" style="margin-top:12px">
-          <div class="card">
-            <h4>Total Sales</h4>
-            <div id="totalSales" style="font-weight:700;font-size:20px">—</div>
-            <div class="small">Periode: last 30 days</div>
-          </div>
-          <div class="card">
-            <h4>Active Customers</h4>
-            <div id="activeUsers" style="font-weight:700;font-size:20px">—</div>
-            <div class="small">Realtime & historical</div>
-          </div>
-          <div class="card">
-            <h4>Orders Completed</h4>
-            <div id="ordersCompleted" style="font-weight:700;font-size:20px">—</div>
-            <div class="small">Shipping & returns</div>
-          </div>
-        </div>
-
-        <div class="card" style="margin-top:12px">
-          <h4>Sales Trend</h4>
-          <canvas id="salesTrend" height="120"></canvas>
-        </div>
-
-        <div class="card" style="margin-top:12px">
-          <h4>Platform Mix</h4>
-          <canvas id="platformMix" height="80"></canvas>
-        </div>
-
-        <div class="card" style="margin-top:12px">
-          <h4>Autopilot Insights (Demo)</h4>
-          <p class="small">Autopilot akan menjalankan analisis berkala, mendeteksi tren, dan membuat rekomendasi.</p>
-          <div id="autopilotLog" class="small" style="max-height:120px;overflow:auto;background:#fbfdff;padding:8px;border-radius:8px;margin-top:8px">No autopilot runs yet.</div>
-          <div style="margin-top:8px">
+        <div style="margin-top:18px">
+          <div class="muted">Autopilot</div>
+          <div style="display:flex;gap:8px;margin-top:8px">
             <button class="btn ghost" onclick="runAutopilotNow()">Run Now</button>
-            <button class="btn primary" id="autopilotToggle" onclick="toggleAutopilot()">Enable Autopilot</button>
+            <button class="btn primary" id="autopilotToggle" onclick="toggleAutopilot()">Enable</button>
           </div>
         </div>
 
-        <div class="card" style="margin-top:12px">
-          <h4>Recent Transactions</h4>
-          <table><thead><tr><th>ID</th><th>Date</th><th>Customer</th><th>Total</th></tr></thead><tbody id="recentTx"></tbody></table>
+        <div style="margin-top:18px" class="muted">
+          <div style="font-weight:700;margin-bottom:6px">Docs & Resources</div>
+          <div style="font-size:13px">• API keys<br>• Integration guides<br>• Onboarding</div>
         </div>
-      </section>
+      </aside>
 
-      <!-- SUBSCRIPTIONS -->
-      <section id="subscriptions" class="card page" style="display:none">
-        <h2>Subscriptions & Billing</h2>
-        <p class="small">Coba free 7 hari. Untuk production, integrasikan Stripe atau Midtrans untuk payment gateway dan verifikasi webhook.</p>
-        <div style="display:flex;gap:12px;margin-top:12px">
-          <div class="card" style="flex:1">
-            <h4>Free</h4><p class="small">Trial 7 hari — fitur dasar</p><button class="btn ghost" onclick="startFree()">Start Free</button>
-          </div>
-          <div class="card" style="flex:1">
-            <h4>Pro</h4><p class="small">Advanced analytics, API access, priority support</p><button class="btn primary" onclick="startPro()">Subscribe Pro</button>
-          </div>
-        </div>
-      </section>
-
-      <!-- SETTINGS -->
-      <section id="settings" class="card page" style="display:none">
-        <h2>Settings</h2>
-        <div style="display:flex;gap:12px">
-          <div style="flex:1">
-            <label class="small">Name</label><input id="profileName" placeholder="Your name" />
-            <label class="small" style="margin-top:8px">Language</label>
-            <select id="langSelect"><option value="id">Indonesia</option><option value="en">English</option></select>
-            <div style="margin-top:12px"><button class="btn primary" onclick="saveProfile()">Save</button></div>
-          </div>
-          <div style="flex:1">
-            <h4>Integration status</h4><div id="integrationList" class="small">No active integrations</div>
-            <div style="margin-top:12px"><button class="btn ghost" onclick="disconnectAll()">Disconnect All</button></div>
-          </div>
-        </div>
-      </section>
-
-      <!-- SUPPORT -->
-      <section id="support" class="card page" style="display:none">
-        <h2>Customer Support</h2>
-        <p class="small">Kirim tiket atau request integrasi.</p>
-        <textarea id="supportText" rows="6" placeholder="Describe your issue..." style="width:100%;margin-top:8px"></textarea>
-        <div style="margin-top:8px"><button class="btn primary" onclick="sendTicket()">Send Ticket</button></div>
-      </section>
-
-      <!-- LOGIN -->
-      <section id="login" class="page" style="display:none">
-        <div class="center-wrap">
-          <div class="login-box">
-            <h3 style="margin:0">Login to FluentBiz</h3>
-            <p class="small">Use your email & password</p>
-            <label class="small">Email</label><input id="loginEmail" type="email" placeholder="email@domain.com" />
-            <label class="small">Password</label><input id="loginPass" type="password" placeholder="password" />
-            <div style="display:flex;gap:8px;margin-top:12px">
-              <button class="btn primary" id="loginBtn">Login</button>
-              <button class="btn ghost" onclick="navigate('home')">Cancel</button>
+      <main class="main">
+        <!-- HOME / Overview -->
+        <section id="home" class="card page">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <div>
+              <h2 style="margin:0">Overview</h2>
+              <div class="muted" id="overview-sub">Unified view of all integrated sources</div>
             </div>
-            <p id="loginError" class="small" style="color:crimson;margin-top:8px;display:none"></p>
-            <p class="small" style="margin-top:8px">Don't have account? <a href="#" onclick="createDemoAccount()">Create demo account</a></p>
+            <div>
+              <div class="muted">View:</div>
+              <select id="globalView" onchange="updateViewSelection()" class="muted">
+                <option value="auto">Auto (by integration)</option>
+                <option value="seller">Seller</option>
+                <option value="company">Company</option>
+                <option value="app">App</option>
+              </select>
+            </div>
           </div>
-        </div>
-      </section>
-    </main>
-  </div>
 
-  <div class="mobile-nav card">
-    <button onclick="navigate('home')">🏠</button>
-    <button onclick="navigate('dashboard')">📊</button>
-    <button onclick="navigate('integrations')">🔗</button>
-    <button onclick="navigate('support')">💬</button>
+          <div style="margin-top:16px" class="metrics">
+            <div class="metric">
+              <div class="muted">Total Revenue</div>
+              <div class="num" id="mTotalRevenue">—</div>
+              <div class="muted">Last 30 days</div>
+            </div>
+            <div class="metric">
+              <div class="muted">Active Users / Customers</div>
+              <div class="num" id="mActiveUsers">—</div>
+              <div class="muted">Realtime</div>
+            </div>
+            <div class="metric">
+              <div class="muted">Conversion / Retention</div>
+              <div class="num" id="mConvRet">—</div>
+              <div class="muted" id="mConvSub">—</div>
+            </div>
+          </div>
+
+          <div style="margin-top:16px" class="grid-2">
+            <div class="card">
+              <h3 style="margin:0">Primary Chart</h3>
+              <canvas id="primaryChart" height="140"></canvas>
+            </div>
+            <div>
+              <div class="card">
+                <h4 style="margin:0">Top Insights</h4>
+                <div id="insightsList" style="margin-top:8px" class="muted">No insights yet</div>
+              </div>
+              <div class="card" style="margin-top:12px">
+                <h4 style="margin:0">Active Integrations</h4>
+                <div id="activeIntegrations" style="margin-top:8px" class="muted">No integrations</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- DASHBOARD (detailed) -->
+        <section id="dashboard" class="card page" style="display:none">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <h2 style="margin:0" id="dashTitle">Dashboard</h2>
+              <div class="muted" id="dashSubtitle">Detailed analytics</div>
+            </div>
+            <div style="display:flex;gap:8px">
+              <button class="btn ghost" onclick="exportCSV()">Export CSV</button>
+              <button class="btn primary" onclick="navigate('integrations')">Manage Integrations</button>
+            </div>
+          </div>
+
+          <div style="margin-top:12px" id="dashboardContent">
+            <!-- content inserted dynamically per type -->
+          </div>
+        </section>
+
+        <!-- INTEGRATIONS -->
+        <section id="integrations" class="card page" style="display:none">
+          <h2>Integrations</h2>
+          <div class="muted">Hubungkan marketplace, ERP, atau SDK aplikasi. Pilih salah satu untuk memulai.</div>
+
+          <div style="margin-top:12px;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px">
+            <div class="card">
+              <h4>Shopee</h4><div class="muted">OAuth / API</div>
+              <div style="margin-top:8px">
+                <button class="btn primary" onclick="connectExternal('seller','shopee')">Connect Shopee</button>
+                <button class="btn ghost" onclick="simulateConnect('seller','shopee')">Demo connect</button>
+              </div>
+            </div>
+            <div class="card">
+              <h4>Tokopedia</h4><div class="muted">OAuth / API</div>
+              <div style="margin-top:8px">
+                <button class="btn primary" onclick="connectExternal('seller','tokopedia')">Connect Tokopedia</button>
+                <button class="btn ghost" onclick="simulateConnect('seller','tokopedia')">Demo connect</button>
+              </div>
+            </div>
+            <div class="card">
+              <h4>ERP / CSV</h4><div class="muted">Upload CSV, or connect with ERP</div>
+              <div style="margin-top:8px">
+                <input type="file" id="csvUpload" accept=".csv" style="background:transparent;color:#fff"/>
+                <button class="btn primary" onclick="connectExternal('company','csv')">Upload & Connect</button>
+                <button class="btn ghost" onclick="simulateConnect('company','csv')">Demo connect</button>
+              </div>
+            </div>
+            <div class="card">
+              <h4>App SDK</h4><div class="muted">Integrate SDK or API</div>
+              <div style="margin-top:8px">
+                <button class="btn primary" onclick="connectExternal('app','sdk')">Connect App</button>
+                <button class="btn ghost" onclick="simulateConnect('app','sdk')">Demo connect</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- SUBSCRIPTIONS -->
+        <section id="subscriptions" class="card page" style="display:none">
+          <h2>Subscriptions</h2>
+          <div class="muted">Trial 7 hari. Untuk berlangganan gunakan Stripe (global) atau Midtrans (Indonesia).</div>
+          <div style="display:flex;gap:12px;margin-top:12px">
+            <div class="card" style="flex:1">
+              <h3>Free Trial</h3><div class="muted">7 hari</div>
+              <div style="margin-top:12px"><button class="btn primary" onclick="startFree()">Activate Trial</button></div>
+            </div>
+            <div class="card" style="flex:1">
+              <h3>Pro</h3><div class="muted">Advanced analytics, API, SLA</div>
+              <div style="margin-top:12px"><button class="btn primary" onclick="startPro()">Subscribe (Stripe)</button></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- SETTINGS -->
+        <section id="settings" class="card page" style="display:none">
+          <h2>Settings</h2>
+          <div class="muted">Profile & integration settings</div>
+          <div style="display:flex;gap:12px;margin-top:12px">
+            <div style="flex:1">
+              <label class="muted">Name</label><input id="profileName" style="width:100%;padding:10px;border-radius:8px;background:transparent;border:1px solid rgba(255,255,255,0.04);color:#fff"/>
+              <div style="margin-top:10px"><button class="btn primary" onclick="saveProfile()">Save</button></div>
+            </div>
+            <div style="flex:1">
+              <h4>Connected Integrations</h4>
+              <div id="integrationList" class="muted">No integrations</div>
+              <div style="margin-top:12px"><button class="btn ghost" onclick="disconnectAll()">Disconnect All</button></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- SUPPORT -->
+        <section id="support" class="card page" style="display:none">
+          <h2>Support</h2>
+          <textarea id="supportText" rows="6" style="width:100%;padding:12px;border-radius:10px;background:transparent;border:1px solid rgba(255,255,255,0.04);color:#fff"></textarea>
+          <div style="margin-top:8px"><button class="btn primary" onclick="sendTicket()">Send Ticket</button></div>
+        </section>
+      </main>
+    </div>
   </div>
 
 <script type="module">
-// ====== CONFIG: paste your Firebase config and backend keys here ======
-const firebaseConfig = { /* paste your firebaseConfig here for production */ };
-const BACKEND_BASE_URL = 'https://YOUR_REGION-YOUR_PROJECT.cloudfunctions.net/api'; // replace later
-const STRIPE_PUBLIC_KEY = ''; // replace when integrate
-// =====================================================================
+// ---------- Config (paste backend URL & Firebase in production) ----------
+const BACKEND_BASE = 'https://YOUR_BACKEND_DOMAIN/api'; // replace with your backend
+const STRIPE_PK = ''; // optional for frontend-only Stripe elements
+const firebaseConfig = {}; // paste if using Firebase
+// ------------------------------------------------------------------------
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
-import { getFirestore, doc, setDoc, getDoc, updateDoc, serverTimestamp, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+/* Optional: init Firebase if config provided (Auth & Firestore) */
+let useFirebase = false;
+try {
+  if(firebaseConfig && Object.keys(firebaseConfig).length){
+    useFirebase = true;
+    // dynamic import of Firebase (only if configured)
+    const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js');
+    const { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword } = await import('https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js');
+    const { getFirestore, doc, getDoc, setDoc, updateDoc, serverTimestamp, collection, addDoc } = await import('https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js');
+    window.__FB = { initializeApp, getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, getFirestore, doc, getDoc, setDoc, updateDoc, serverTimestamp, collection, addDoc };
+    initializeApp(firebaseConfig);
+  }
+} catch(e){ console.warn('Firebase not initialized', e); }
 
-let app, auth, db;
-try{
-  app = initializeApp(firebaseConfig);
-  auth = getAuth(app);
-  db = getFirestore(app);
-} catch(e){
-  console.warn('Firebase not initialized — paste your firebaseConfig in the file to enable Auth/Firestore.', e);
-}
+/* Helpers */
+const el = id => document.getElementById(id);
+function formatRp(n){ try{ return 'Rp '+Number(n).toLocaleString('id-ID'); }catch(e){ return n; } }
+function zeroIf(v){ return v===undefined||v===null?0:v; }
 
-// ======= Helpers =======
-function el(id){ return document.getElementById(id); }
-function daysBetween(a,b){ return Math.ceil((b-a)/(1000*60*60*24)); }
-function daysLeftFrom(startTs, days=7){
-  if(!startTs) return days;
-  const s = new Date(startTs).getTime();
-  const now = Date.now();
-  const left = days - Math.floor((now - s)/(1000*60*60*24));
-  return left < 0 ? 0 : left;
-}
-function formatRp(n){ try{return 'Rp '+Number(n).toLocaleString('id-ID'); }catch(e){return n;} }
-
-// ======= Navigation =======
+/* Navigation */
 function navigate(page){
   document.querySelectorAll('.page').forEach(p=>p.style.display='none');
-  const elpage = document.getElementById(page);
-  if(elpage) elpage.style.display = 'block';
-  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
-  const navEl = document.querySelector(`.nav-item[data-page="${page}"]`);
-  if(navEl) navEl.classList.add('active');
+  const elp = document.getElementById(page);
+  if(elp) elp.style.display='block';
+  document.querySelectorAll('.nav .item').forEach(i=>i.classList.remove('active'));
+  const nav = document.querySelector(`.nav .item[data-page="${page}"]`);
+  if(nav) nav.classList.add('active');
   window.scrollTo({top:0,behavior:'smooth'});
 }
 window.navigate = navigate;
 
-// ======= Auth (demo-friendly) =======
-if(typeof auth !== 'undefined'){
-  onAuthStateChanged(auth, async user=>{
-    if(user){
-      el('userMenu').innerText = user.email.split('@')[0];
-      const uref = doc(db,'users',user.uid);
-      const snap = await getDoc(uref);
-      if(!snap.exists()){
-        await setDoc(uref,{ email:user.email, role:'seller', trialStart: serverTimestamp(), isPremium:false, integrations:{} });
-      }
-      const data = (await getDoc(uref)).data();
-      const integrations = data.integrations || {};
-      const hasIntegration = Object.keys(integrations).length > 0;
-      el('userRolePill').innerText = 'Role: '+(data.role||'seller');
-      if(!hasIntegration){
-        navigate('integrations');
-      } else {
-        navigate('dashboard');
-        await populateIntegrationList();
-        loadDashboardForRole(data.role || 'seller', data);
-        startAutopilotIfEnabled();
-      }
-    } else {
-      el('userMenu').innerText = 'Guest';
-      // show stored trial info if any
-      navigate('home');
-      updateTrialUI();
-    }
-  });
-}
-
-// ======= Demo account creation =======
-el('loginBtn').addEventListener('click', async ()=>{
-  const email = el('loginEmail').value.trim();
-  const pass = el('loginPass').value.trim();
-  el('loginError').style.display = 'none';
-  if(!email || !pass){ el('loginError').innerText='Email & password wajib'; el('loginError').style.display='block'; return; }
-  if(!auth){ el('loginError').innerText='Firebase tidak dikonfigurasi.'; el('loginError').style.display='block'; return; }
-  try{
-    await signInWithEmailAndPassword(auth,email,pass);
-  } catch(err){
-    el('loginError').innerText = err.message; el('loginError').style.display='block';
-  }
-});
-
-window.createDemoAccount = async function(){
-  if(!auth){ alert('Firebase not configured — membuat demo lokal saja.'); createLocalDemo(); return; }
-  const email = `demo${Date.now()}@fluentbiz.demo`;
-  const pass = 'password123';
-  try{
-    const cred = await createUserWithEmailAndPassword(auth,email,pass);
-    await setDoc(doc(db,'users',cred.user.uid),{ email, role:'seller', trialStart: serverTimestamp(), isPremium:false, integrations:{} });
-    alert('Demo account created. Login dengan email: '+email+' pass: '+pass);
-  } catch(e){ alert('Error creating demo: '+e.message); }
+/* State */
+let state = {
+  integrations: {}, // {type:{key: {connectedAt, meta}}}
+  activeView: 'auto', // auto | seller | company | app
+  autopilotEnabled: false,
+  trialStart: localStorage.getItem('fluentbiz_trialStart') || null,
+  isPremium: false,
 };
-function createLocalDemo(){
-  // fallback demo using localStorage
-  localStorage.setItem('fluentbiz_demo','true');
-  localStorage.setItem('fluentbiz_trialStart', new Date().toISOString());
-  alert('Demo lokal dibuat. Silakan kembali ke Home dan klik Dashboard.');
+
+/* Initialization */
+function init(){
+  loadLocalState();
+  renderTop();
   updateTrialUI();
+  navigate('home');
+  renderOverview();
+  attachUI();
+}
+function loadLocalState(){
+  const ints = JSON.parse(localStorage.getItem('fluentbiz_integrations')||'{}');
+  state.integrations = ints;
+  // detect default view if only one type connected
+  const types = Object.values(ints).map(i=>i.type);
+  if(types.length===1) state.activeView = types[0];
+  el('integrationList').innerText = Object.keys(ints).length?Object.keys(ints).join(', '):'No integrations';
+  el('activeIntegrations').innerText = Object.keys(ints).length?Object.keys(ints).map(k=>`${k} (${ints[k].type})`).join(', '):'No integrations';
+  el('integrationBadge').innerText = Object.keys(ints).length?`${Object.keys(ints).length} integrations`:'No integrations';
+}
+function renderTop(){
+  el('userShort').innerText = 'Guest';
+  el('trialInfo').innerText = state.trialStart?`Trial started: ${new Date(state.trialStart).toLocaleDateString()}`:'Trial inactive';
 }
 
-// ======= Integration simulation =======
-async function simulateConnect(key){
-  // if Firebase configured and user logged in, save to Firestore; otherwise localStorage
-  if(typeof auth !== 'undefined' && auth.currentUser){
-    const uid = auth.currentUser.uid;
-    const uref = doc(db,'users',uid);
-    const snap = await getDoc(uref);
-    const data = snap.data() || {};
-    const integrations = data.integrations || {};
-    integrations[key] = { demo:true, connectedAt: new Date().toISOString() };
-    await updateDoc(uref,{ integrations });
-    el('status-'+key).innerText = '✅ Terhubung';
-    setTimeout(()=>{ navigate('dashboard'); loadDashboardForRole(data.role || 'seller', data); },800);
-    populateIntegrationList();
-    return;
-  }
-  // fallback
-  const store = JSON.parse(localStorage.getItem('fluentbiz_integrations') || '{}');
-  store[key] = { demo:true, connectedAt:new Date().toISOString() };
+/* UI Attach */
+function attachUI(){
+  // nothing heavy for now
+}
+
+/* Integrations: demo + actual */
+function simulateConnect(type, key){
+  const id = `${key}_${Date.now()}`;
+  const store = JSON.parse(localStorage.getItem('fluentbiz_integrations')||'{}');
+  store[id] = { id, key, type, connectedAt: new Date().toISOString(), meta:{demo:true} };
   localStorage.setItem('fluentbiz_integrations', JSON.stringify(store));
-  el('status-'+key).innerText = '✅ Terhubung (local)';
-  setTimeout(()=>{ navigate('dashboard'); loadDashboardForRole('seller'); },600);
+  state.integrations = store;
+  loadLocalState();
+  alert(`Connected (demo): ${key} as ${type}`);
+  // After connecting, auto-navigate to relevant dashboard
+  setTimeout(()=>{ determineAndShowDashboard(); },400);
 }
 window.simulateConnect = simulateConnect;
 
-// ======= Dashboard rendering (demo analytics) =======
-let salesTrendChart, platformMixChart;
-function loadDashboardForRole(role, userData = null){
-  if(role==='company'){
-    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug'];
-    const revenue = [420000,480000,510000,470000,550000,620000,610000,700000];
-    el('totalSales').innerText = formatRp(revenue.reduce((a,b)=>a+b,0));
-    el('activeUsers').innerText = '320 employees';
-    el('ordersCompleted').innerText = '1,204';
-    renderLineChart('salesTrend', months, revenue, 'Revenue');
-    renderDoughnut('platformMix', ['Branch A','Branch B','Branch C','Branch D'], [40,30,20,10]);
-    el('recentTx').innerHTML = '<tr><td>#C001</td><td>2025-10-01</td><td>Client A</td><td>Rp 20.000.000</td></tr>';
-  } else if(role==='app'){
-    const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
-    const dau = [1200,1500,1800,2100,2300,2600,3000];
-    el('totalSales').innerText = dau.reduce((a,b)=>a+b,0);
-    el('activeUsers').innerText = 'DAU: '+dau[dau.length-1];
-    el('ordersCompleted').innerText = 'N/A';
-    renderLineChart('salesTrend', days, dau, 'DAU');
-    renderDoughnut('platformMix', ['Organic','Ads','Referral','Other'], [60,25,10,5]);
-    el('recentTx').innerHTML = '<tr><td>#A001</td><td>2025-10-01</td><td>Player1</td><td>Rp 50.000</td></tr>';
+/* Connect External (placeholder to open OAuth or backend flow) */
+function connectExternal(type,key){
+  // In production: redirect to BACKEND_BASE + /integrations/connect?type=... which starts OAuth flow
+  const target = `${BACKEND_BASE}/integrations/connect?type=${type}&provider=${key}`;
+  alert(`Redirecting to integration flow (placeholder): ${target}`);
+  // window.location.href = target;
+}
+
+/* Determine dashboard to show */
+function determineAndShowDashboard(){
+  // logic: if user selected manual view (globalView != auto) -> use that
+  const gv = el('globalView').value;
+  if(gv && gv!=='auto'){ state.activeView = gv; showDashboardFor(gv); return; }
+  // auto: choose based on connected integrations
+  const ints = Object.values(state.integrations || {});
+  const types = new Set(ints.map(i=>i.type));
+  if(types.has('seller') && !types.has('company') && !types.has('app')){ state.activeView='seller'; showDashboardFor('seller'); return; }
+  if(types.has('company') && !types.has('seller') && !types.has('app')){ state.activeView='company'; showDashboardFor('company'); return; }
+  if(types.has('app') && !types.has('company') && !types.has('seller')){ state.activeView='app'; showDashboardFor('app'); return; }
+  // if multiple, show consolidated overview
+  state.activeView='overview';
+  navigate('home');
+  renderOverview();
+}
+function updateViewSelection(){ determineAndShowDashboard(); }
+
+/* Show dashboard for type */
+function showDashboardFor(type){
+  navigate('dashboard');
+  el('dashTitle').innerText = type==='seller' ? 'Seller Dashboard' : type==='company' ? 'Company Dashboard' : type==='app' ? 'App Dashboard' : 'Dashboard';
+  el('dashSubtitle').innerText = `View optimized for ${type}`;
+  const container = el('dashboardContent');
+  container.innerHTML = '';
+  if(type==='seller'){
+    container.innerHTML = sellerDashboardHTML();
+    renderSellerDashboard();
+  } else if(type==='company'){
+    container.innerHTML = companyDashboardHTML();
+    renderCompanyDashboard();
+  } else if(type==='app'){
+    container.innerHTML = appDashboardHTML();
+    renderAppDashboard();
   } else {
-    const days = ['Sen','Sel','Rab','Kam','Jum','Sab','Min'];
-    const sales = [12000,15000,18000,22000,26000,31000,37000];
-    el('totalSales').innerText = formatRp(sales.reduce((a,b)=>a+b,0));
-    el('activeUsers').innerText = '1,245';
-    el('ordersCompleted').innerText = '97%';
-    renderLineChart('salesTrend', days, sales, 'Sales');
-    renderDoughnut('platformMix', ['Shopee','Tokopedia','Lazada','TikTok'], [45,25,20,10]);
-    el('recentTx').innerHTML = '<tr><td>#S001</td><td>2025-10-01</td><td>Andi</td><td>Rp 2.000.000</td></tr>';
+    container.innerHTML = `<div class="card">No specialized dashboard available.</div>`;
   }
 }
 
-function renderLineChart(canvasId, labels, data, label){
-  const ctx = document.getElementById(canvasId).getContext('2d');
-  if(salesTrendChart) salesTrendChart.destroy();
-  salesTrendChart = new Chart(ctx,{
-    type:'line',
-    data:{ labels, datasets:[{ label, data, borderColor:'#6C63FF', backgroundColor:'rgba(108,99,255,0.12)', fill:true, tension:0.35 }]},
-    options:{ responsive:true, plugins:{legend:{display:false}}}
+/* Dashboard HTML templates (concise, filled by render functions) */
+function sellerDashboardHTML(){ return `
+  <div class="metrics" style="margin-bottom:12px">
+    <div class="metric"><div class="muted">Total Sales</div><div class="num" id="sd_totalSales">—</div><div class="muted">Last 30d</div></div>
+    <div class="metric"><div class="muted">Top Product</div><div class="num" id="sd_topProd">—</div><div class="muted" id="sd_topProdSub">—</div></div>
+    <div class="metric"><div class="muted">Conversion Rate</div><div class="num" id="sd_conv">—</div><div class="muted">Orders & Fulfillment</div></div>
+  </div>
+  <div style="display:grid;grid-template-columns:2fr 1fr;gap:12px">
+    <div class="card"><h4>Sales Trend</h4><canvas id="sd_salesTrend" height="120"></canvas></div>
+    <div class="card"><h4>Top Products</h4><div id="sd_topProducts" class="muted">—</div></div>
+  </div>
+  <div class="card" style="margin-top:12px"><h4>Recent Orders</h4><table><thead><tr><th>ID</th><th>Date</th><th>Customer</th><th>Total</th></tr></thead><tbody id="sd_recentOrders"></tbody></table></div>
+`;}
+function companyDashboardHTML(){ return `
+  <div class="metrics" style="margin-bottom:12px">
+    <div class="metric"><div class="muted">Revenue</div><div class="num" id="cd_revenue">—</div><div class="muted">Last Quarter</div></div>
+    <div class="metric"><div class="muted">Profit Margin</div><div class="num" id="cd_margin">—</div><div class="muted">Operational Cost</div></div>
+    <div class="metric"><div class="muted">Productivity</div><div class="num" id="cd_productivity">—</div><div class="muted">Employees</div></div>
+  </div>
+  <div style="display:grid;grid-template-columns:2fr 1fr;gap:12px">
+    <div class="card"><h4>Revenue Trend</h4><canvas id="cd_revenueTrend" height="120"></canvas></div>
+    <div class="card"><h4>Branch Performance</h4><div id="cd_branches" class="muted">—</div></div>
+  </div>
+  <div class="card" style="margin-top:12px"><h4>Latest Reports</h4><div id="cd_reports" class="muted">—</div></div>
+`;}
+function appDashboardHTML(){ return `
+  <div class="metrics" style="margin-bottom:12px">
+    <div class="metric"><div class="muted">DAU</div><div class="num" id="ad_dau">—</div><div class="muted">Today</div></div>
+    <div class="metric"><div class="muted">Retention (7d)</div><div class="num" id="ad_retention">—</div><div class="muted">ARPU</div></div>
+    <div class="metric"><div class="muted">Crashes</div><div class="num" id="ad_crash">—</div><div class="muted">Stability</div></div>
+  </div>
+  <div style="display:grid;grid-template-columns:2fr 1fr;gap:12px">
+    <div class="card"><h4>Engagement Trend</h4><canvas id="ad_engage" height="120"></canvas></div>
+    <div class="card"><h4>Acquisition Mix</h4><div id="ad_acq" class="muted">—</div></div>
+  </div>
+  <div class="card" style="margin-top:12px"><h4>Recent Events</h4><div id="ad_events" class="muted">—</div></div>
+`;}
+
+/* Renderers for each dashboard — demo data, but show where to call backend */
+let primaryChart;
+function renderSellerDashboard(){
+  // TRY to fetch summary from backend:
+  fetch(`${BACKEND_BASE}/summary?seller=true`).then(r=>r.json()).then(data=>{
+    // if backend present and returns expected shape, use it; otherwise fallback to demo
+    if(data && data.totalSales!==undefined){
+      fillSellerFromBackend(data);
+    } else fillSellerDemo();
+  }).catch(()=>fillSellerDemo());
+}
+function fillSellerFromBackend(d){
+  el('sd_totalSales').innerText = formatRp(d.totalSales);
+  el('sd_topProd').innerText = d.topProduct || '—';
+  el('sd_conv').innerText = d.conversionRate || '—';
+  // charts
+  const labels = d.trend.labels; const series = d.trend.series;
+  renderLine('sd_salesTrend', labels, series, 'Revenue');
+  // recent orders
+  el('sd_recentOrders').innerHTML = (d.recent || []).map(tx=>`<tr><td>${tx.id}</td><td>${tx.date}</td><td>${tx.customer}</td><td>${formatRp(tx.total)}</td></tr>`).join('');
+  el('sd_topProducts').innerText = (d.topProducts||[]).map(p=>`${p.name} (${p.sales})`).join('\n');
+}
+function fillSellerDemo(){
+  const sales = [12000,15000,18000,21000,26000,30000,34000];
+  el('sd_totalSales').innerText = formatRp(sales.reduce((a,b)=>a+b,0));
+  el('sd_topProd').innerText = 'Produk A';
+  el('sd_conv').innerText = '3.4%';
+  renderLine('sd_salesTrend',['Sen','Sel','Rab','Kam','Jum','Sab','Min'], sales, 'Sales');
+  el('sd_recentOrders').innerHTML = `
+    <tr><td>#S001</td><td>2025-10-05</td><td>Rini</td><td>${formatRp(125000)}</td></tr>
+    <tr><td>#S002</td><td>2025-10-04</td><td>Budi</td><td>${formatRp(250000)}</td></tr>
+  `;
+  el('sd_topProducts').innerHTML = `<div class="muted">Produk A — 1.2k sold<br>Produk B — 720 sold</div>`;
+}
+
+function renderCompanyDashboard(){
+  fetch(`${BACKEND_BASE}/summary?company=true`).then(r=>r.json()).then(data=>{
+    if(data && data.revenue!==undefined) fillCompanyFromBackend(data); else fillCompanyDemo();
+  }).catch(()=>fillCompanyDemo());
+}
+function fillCompanyFromBackend(d){
+  el('cd_revenue').innerText = formatRp(d.revenue);
+  el('cd_margin').innerText = d.margin+'%';
+  renderLine('cd_revenueTrend', d.trend.labels, d.trend.series, 'Revenue');
+  el('cd_branches').innerText = d.branches.map(b=>`${b.name}: ${formatRp(b.revenue)}`).join('\n');
+}
+function fillCompanyDemo(){
+  const rev = [420000,480000,510000,470000,550000,620000];
+  el('cd_revenue').innerText = formatRp(rev.reduce((a,b)=>a+b,0));
+  el('cd_margin').innerText = '18%';
+  renderLine('cd_revenueTrend',['Jan','Feb','Mar','Apr','May','Jun'], rev, 'Revenue');
+  el('cd_branches').innerText = 'Jakarta: Rp 1.2M\nBandung: Rp 580k\nSurabaya: Rp 420k';
+}
+
+function renderAppDashboard(){
+  fetch(`${BACKEND_BASE}/summary?app=true`).then(r=>r.json()).then(data=>{
+    if(data && data.dau!==undefined) fillAppFromBackend(data); else fillAppDemo();
+  }).catch(()=>fillAppDemo());
+}
+function fillAppFromBackend(d){
+  el('ad_dau').innerText = d.dau;
+  el('ad_retention').innerText = d.retention+'%';
+  renderLine('ad_engage', d.trend.labels, d.trend.series, 'Engagement');
+}
+function fillAppDemo(){
+  const dau = [1200,1500,1800,2100,2300,2600,3000];
+  el('ad_dau').innerText = dau[dau.length-1];
+  el('ad_retention').innerText = '28%';
+  renderLine('ad_engage',['Mon','Tue','Wed','Thu','Fri','Sat','Sun'], dau, 'DAU');
+  el('ad_events').innerText = 'No recent critical events';
+}
+
+/* Chart util */
+let charts = {};
+function renderLine(id, labels, data, label){
+  const ctx = document.getElementById(id).getContext('2d');
+  if(charts[id]) charts[id].destroy();
+  charts[id] = new Chart(ctx, {
+    type: 'line',
+    data: { labels, datasets: [{ label, data, fill:true, tension:0.3, borderColor: '#6C63FF', backgroundColor: 'rgba(108,99,255,0.08)' }]},
+    options: { plugins:{legend:{display:false}}, responsive:true }
   });
 }
 
-function renderDoughnut(canvasId, labels, data){
-  const ctx = document.getElementById(canvasId).getContext('2d');
-  if(platformMixChart) platformMixChart.destroy();
-  platformMixChart = new Chart(ctx,{ type:'doughnut', data:{ labels, datasets:[{ data }]}, options:{ responsive:true }});
+/* Overview primary chart (consolidated) */
+function renderOverview(){
+  // sample consolidated numbers from connected sources
+  const ints = Object.values(state.integrations || {});
+  const hasSeller = ints.some(i=>i.type==='seller');
+  const hasCompany = ints.some(i=>i.type==='company');
+  const hasApp = ints.some(i=>i.type==='app');
+
+  // demo logic to choose primary dataset
+  if(hasSeller && !hasCompany && !hasApp){
+    state.activeView='seller'; showDashboardFor('seller'); return;
+  }
+  if(hasCompany && !hasSeller && !hasApp){ state.activeView='company'; showDashboardFor('company'); return; }
+  if(hasApp && !hasSeller && !hasCompany){ state.activeView='app'; showDashboardFor('app'); return; }
+
+  // else show consolidated overview
+  const labels = ['W1','W2','W3','W4'];
+  const series = [120000,160000,200000,240000];
+  if(primaryChart) primaryChart.destroy();
+  const ctx = document.getElementById('primaryChart').getContext('2d');
+  primaryChart = new Chart(ctx, {
+    type:'bar',
+    data:{ labels, datasets:[{ label:'Total', data: series }]},
+    options:{ plugins:{legend:{display:false}}, responsive:true }
+  });
+  // fill overview metrics
+  el('mTotalRevenue').innerText = formatRp(series.reduce((a,b)=>a+b,0));
+  el('mActiveUsers').innerText = '3,420';
+  el('mConvRet').innerText = 'Avg conv 2.8%';
+  el('mConvSub').innerText = 'Retention 28%';
+  el('insightsList').innerText = 'Autopilot: No anomalies detected';
 }
 
-// ======= Autopilot (demo scheduler) =======
-let autopilotEnabled = false;
-let autopilotIntervalId = null;
-function logAutopilot(msg){
-  const elLog = el('autopilotLog');
-  const time = new Date().toLocaleString();
-  elLog.innerHTML = `<div>[${time}] ${msg}</div>` + elLog.innerHTML;
-}
-async function autopilotAnalyze(){
-  // This is a demo. Replace with server-side job that fetches real data, runs ML/heuristics and stores results.
-  logAutopilot('Starting analysis — fetching latest integration data...');
-  // Simulate read of integrations
-  const ints = JSON.parse(localStorage.getItem('fluentbiz_integrations')||'{}');
-  const totalSales = Math.floor(Math.random()*50000000) + 1000000;
-  const growth = (Math.random()*10).toFixed(1) + '%';
-  logAutopilot(`Detected ${Object.keys(ints).length} integrations. Estimated total sales: ${formatRp(totalSales)} (growth ${growth}).`);
-  // Update dashboard numbers (demo)
-  el('totalSales').innerText = formatRp(totalSales);
-  el('dash-sub').innerText = `Last analysis: ${new Date().toLocaleString()}`;
-  // store last run time locally
-  localStorage.setItem('fluentbiz_lastAutopilot', new Date().toISOString());
-}
-
-function runAutopilotNow(){ autopilotAnalyze(); }
-function toggleAutopilot(){
-  autopilotEnabled = !autopilotEnabled;
-  el('autopilotToggle').innerText = autopilotEnabled ? 'Disable Autopilot' : 'Enable Autopilot';
-  if(autopilotEnabled){
-    // run every 30 minutes in demo (shorter). Replace with server-side cron for production.
-    autopilotIntervalId = setInterval(autopilotAnalyze, 30*60*1000);
-    logAutopilot('Autopilot enabled (demo, runs every 30 minutes).');
-    autopilotAnalyze();
-  } else {
-    clearInterval(autopilotIntervalId);
-    logAutopilot('Autopilot disabled.');
-  }
-}
-function startAutopilotIfEnabled(){
-  const stored = localStorage.getItem('fluentbiz_autopilot') === 'true';
-  if(stored){ autopilotEnabled = true; toggleAutopilot(); }
-}
-window.runAutopilotNow = runAutopilotNow;
-window.toggleAutopilot = toggleAutopilot;
-
-// ======= Subscriptions demo logic =======
-function setTrialStart(ts){
-  if(typeof auth !== 'undefined' && auth.currentUser){
-    // in production: set in Firestore user doc
-    updateDoc(doc(db,'users',auth.currentUser.uid),{ trialStart: serverTimestamp() }).catch(()=>{});
-  } else {
-    localStorage.setItem('fluentbiz_trialStart', ts || new Date().toISOString());
-  }
-}
-function getTrialStart(){
-  if(typeof auth !== 'undefined' && auth.currentUser){
-    // best: read from Firestore (async). Here return local fallback:
-    return localStorage.getItem('fluentbiz_trialStart') || null;
-  }
-  return localStorage.getItem('fluentbiz_trialStart') || null;
-}
+/* Subscriptions & Trial */
 function updateTrialUI(){
-  const ts = getTrialStart();
-  const left = ts ? daysLeftFrom(ts,7) : 7;
-  el('trialDays').innerText = left;
-  if(left===0){
-    el('dash-sub').innerText = 'Trial expired — upgrade untuk melanjutkan';
-  }
+  const ts = state.trialStart;
+  if(!ts){ el('trialInfo').innerText = 'Trial inactive'; el('trialInfo').style.color='var(--muted)'; return; }
+  const left = Math.max(0, 7 - Math.floor((Date.now() - new Date(ts))/ (1000*60*60*24)));
+  el('trialInfo').innerText = `Trial: ${left} day(s) left`;
+  if(left===0){ el('trialInfo').innerText = 'Trial expired'; }
 }
 function startFree(){
-  if(!getTrialStart()){
-    setTrialStart(new Date().toISOString());
-    alert('Trial 7 hari diaktifkan (demo).');
-  } else alert('Trial sudah diaktifkan.');
-  updateTrialUI();
+  if(!state.trialStart){ state.trialStart = new Date().toISOString(); localStorage.setItem('fluentbiz_trialStart', state.trialStart); updateTrialUI(); alert('Trial 7 hari diaktifkan (demo)'); }
+  else alert('Trial sudah aktif');
 }
 function startPro(){
-  // Placeholder: in production open Stripe checkout or Midtrans redirect
-  alert('Redirect to payment (demo) — integrate Stripe/Midtrans in backend later.');
+  // in production: call backend to create Stripe checkout session
+  const checkoutUrl = `${BACKEND_BASE}/checkout/create-session`;
+  alert(`Redirect to checkout (placeholder): ${checkoutUrl}`);
+  // window.location.href = checkoutUrl;
 }
+
+/* Autopilot: prefer server-side */
+function runAutopilotNow(){
+  // Try backend trigger
+  fetch(`${BACKEND_BASE}/autopilot/run`, { method:'POST' }).then(r=>r.json()).then(res=>{
+    alert('Autopilot run triggered (backend). See logs.');
+  }).catch(err=>{
+    // fallback demo
+    alert('Backend not available — running demo autopilot.');
+    demoAutopilot();
+  });
+}
+function toggleAutopilot(){
+  state.autopilotEnabled = !state.autopilotEnabled;
+  el('autopilotToggle').innerText = state.autopilotEnabled ? 'Disable' : 'Enable';
+  localStorage.setItem('fluentbiz_autopilot', state.autopilotEnabled?'true':'false');
+}
+function demoAutopilot(){
+  const ints = Object.values(state.integrations || {});
+  const total = Math.floor(Math.random()*1000000)+500000;
+  el('insightsList').innerText = `Autopilot: Estimated total across integrations ${formatRp(total)} — trend up`;
+  el('mTotalRevenue').innerText = formatRp(total);
+}
+
+/* Misc */
+function exportCSV(){ alert('Export CSV (placeholder). Connect backend for real export.'); }
 function openSubscribe(){ navigate('subscriptions'); }
-window.startFree = startFree;
-window.startPro = startPro;
-window.openSubscribe = openSubscribe;
+function saveProfile(){ alert('Profile saved (demo)'); }
+function disconnectAll(){ localStorage.removeItem('fluentbiz_integrations'); state.integrations={}; loadLocalState(); alert('Disconnected all (demo)'); renderOverview(); }
+function sendTicket(){ const v = el('supportText').value || ''; if(!v) return alert('Tuliskan pesan'); const t = JSON.parse(localStorage.getItem('fluentbiz_tickets')||'[]'); t.push({text:v, created:new Date().toISOString()}); localStorage.setItem('fluentbiz_tickets', JSON.stringify(t)); alert('Ticket terkirim (demo)'); el('supportText').value=''; }
 
-// ======= Settings, support and misc (demo) =======
-async function saveProfile(){ alert('Profile saved (demo)'); }
-async function disconnectAll(){
-  if(typeof auth !== 'undefined' && auth.currentUser){
-    const uid = auth.currentUser.uid;
-    await updateDoc(doc(db,'users',uid),{ integrations:{} });
-    el('integrationList').innerText = 'No active integrations';
-    alert('All integrations disconnected (demo).');
-    return;
-  }
-  localStorage.removeItem('fluentbiz_integrations');
-  el('integrationList').innerText = 'No active integrations';
-  alert('All integrations disconnected (local demo).');
-}
-async function sendTicket(){
-  const txt = (el('supportText') || {}).value || '';
-  if(!txt) return alert('Tuliskan pesan');
-  if(typeof auth !== 'undefined' && auth.currentUser){
-    const uid = auth.currentUser.uid;
-    await addDoc(collection(db,'tickets'),{ user:uid, text:txt, status:'open', created: serverTimestamp() });
-    alert('Tiket terkirim. Kami akan menindaklanjuti.');
-    el('supportText').value='';
-    return;
-  }
-  // local demo ticket
-  const t = JSON.parse(localStorage.getItem('fluentbiz_tickets')||'[]');
-  t.push({ text:txt, created:new Date().toISOString(), status:'open' });
-  localStorage.setItem('fluentbiz_tickets', JSON.stringify(t));
-  alert('Tiket terkirim (local demo).');
-  el('supportText').value='';
-}
+/* Populate initial data & UI events */
+init();
 
-// ======= Utility: populate integration list and trial on load =======
-async function populateIntegrationList(){
-  if(typeof auth !== 'undefined' && auth.currentUser){
-    const snap = await getDoc(doc(db,'users',auth.currentUser.uid));
-    const integrations = (snap.exists() && snap.data().integrations) || {};
-    if(Object.keys(integrations).length===0) el('integrationList').innerText = 'No active integrations';
-    else el('integrationList').innerText = Object.keys(integrations).join(', ');
-    return;
-  }
-  const ints = JSON.parse(localStorage.getItem('fluentbiz_integrations') || '{}');
-  el('integrationList').innerText = Object.keys(ints).length ? Object.keys(ints).join(', ') : 'No active integrations';
-}
-window.disconnectAll = disconnectAll;
-window.saveProfile = saveProfile;
-window.sendTicket = sendTicket;
-window.populateIntegrationList = populateIntegrationList;
+// When page loads, try auto-detect dashboard
+setTimeout(()=>{ determineAndShowDashboard(); },300);
 
-// ======= Init =======
-updateTrialUI();
-populateIntegrationList();
 </script>
 </body>
 </html>
