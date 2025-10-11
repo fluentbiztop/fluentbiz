@@ -51,7 +51,6 @@
     .section h3{margin:0 0 12px 0}
     .pricing{display:flex;gap:12px}
     .price-card{flex:1;padding:16px;border-radius:12px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));text-align:center}
-    .price-card h4{margin:6px 0}
     .testi{background:var(--card-bg);padding:12px;border-radius:10px}
 
     /* Smooth reveal on scroll */
@@ -73,12 +72,23 @@
     table{width:100%;border-collapse:collapse}
     th,td{padding:8px;border-bottom:1px solid rgba(255,255,255,0.03);text-align:left;font-size:13px}
 
-    /* Responsive */
+    /* Login modal (modern minimal) */
+    .modal-backdrop{position:fixed;inset:0;background:rgba(2,6,23,0.6);display:flex;align-items:center;justify-content:center;z-index:999;opacity:0;pointer-events:none;transition:all 240ms ease}
+    .modal-backdrop.show{opacity:1;pointer-events:auto}
+    .modal{width:420px;background:linear-gradient(180deg,#ffffff 4%, #f7f9ff 70%);color:#07102a;padding:20px;border-radius:12px;box-shadow:0 20px 60px rgba(2,6,23,0.6)}
+    .modal h3{margin:0 0 8px 0}
+    .input{width:100%;padding:10px;border-radius:8px;border:1px solid rgba(2,6,23,0.06);margin-top:8px}
+
+    /* small helpers */
+    .muted-ghost{color:#6b7280;font-size:13px}
+    .row{display:flex;gap:8px;align-items:center}
+
     @media(max-width:980px){
       .hero{grid-template-columns:1fr; padding:22px}
       .features{grid-template-columns:1fr}
       .layout{grid-template-columns:1fr}
       .sidebar{order:2}
+      .modal{width:92%}
     }
   </style>
 </head>
@@ -97,7 +107,7 @@
         <div class="small muted" id="navTrialInfo">Trial: inactive</div>
         <button class="btn ghost" onclick="scrollToSection('features')">Fitur</button>
         <button class="btn ghost" onclick="scrollToSection('pricing')">Paket</button>
-        <button class="btn primary" onclick="startNow()">Mulai Sekarang</button>
+        <button class="btn primary" onclick="openAuthModal('login')">Mulai Sekarang</button>
       </div>
     </div>
 
@@ -107,7 +117,7 @@
         <h2>FluentBiz — Ubah data menjadi keputusan cerdas.</h2>
         <p class="lead">Analisis data penjualan & performa bisnis secara otomatis. Satu platform untuk seller online, perusahaan, dan aplikasi — insight real-time & rekomendasi AI.</p>
         <div class="cta-row">
-          <button class="btn primary" onclick="startNow()">Mulai Sekarang — Gratis 7 Hari</button>
+          <button class="btn primary" onclick="openAuthModal('register')">Mulai Sekarang — Gratis 7 Hari</button>
           <button class="btn ghost" onclick="scrollToSection('demoDashboard')">Lihat Demo</button>
         </div>
 
@@ -165,17 +175,17 @@
         <div class="price-card">
           <h4>Free Trial</h4>
           <div class="small muted">7 hari akses penuh</div>
-          <div style="margin-top:12px"><button class="btn primary" onclick="startFree()">Aktifkan Trial</button></div>
+          <div style="margin-top:12px"><button class="btn primary" onclick="openAuthModal('register')">Aktifkan Trial</button></div>
         </div>
         <div class="price-card">
           <h4>Basic</h4>
           <div class="small muted">Rp99.000 / bulan • Integrasi marketplace</div>
-          <div style="margin-top:12px"><button class="btn primary" onclick="startPro()">Pilih Basic</button></div>
+          <div style="margin-top:12px"><button class="btn primary" onclick="openAuthModal('register')">Pilih Basic</button></div>
         </div>
         <div class="price-card">
           <h4>Pro</h4>
           <div class="small muted">Rp199.000 / bulan • Autopilot & API</div>
-          <div style="margin-top:12px"><button class="btn primary" onclick="startPro()">Pilih Pro</button></div>
+          <div style="margin-top:12px"><button class="btn primary" onclick="openAuthModal('register')">Pilih Pro</button></div>
         </div>
       </div>
     </section>
@@ -197,7 +207,7 @@
           <div class="small muted">Coba gratis 7 hari — tanpa kartu kredit</div>
         </div>
         <div>
-          <button class="btn primary" onclick="startNow()">Coba Sekarang — Gratis 7 Hari</button>
+          <button class="btn primary" onclick="openAuthModal('register')">Coba Sekarang — Gratis 7 Hari</button>
         </div>
       </div>
     </section>
@@ -213,7 +223,7 @@
         <!-- Layout -->
         <div class="layout" style="margin-top:12px">
           <!-- Sidebar -->
-          <aside class="sidebar card">
+          <aside class="sidebar card" id="mainSidebar" style="display:none">
             <div style="display:flex;justify-content:space-between;align-items:center">
               <div>
                 <div style="font-weight:800" id="userShort">Guest</div>
@@ -226,11 +236,13 @@
             </div>
 
             <div style="margin-top:12px">
-              <div class="nav-item active" data-page="overview" onclick="navigate('overview')">Overview</div>
-              <div class="nav-item" data-page="integrations" onclick="navigate('integrations')">Integrations</div>
-              <div class="nav-item" data-page="dashboard" onclick="navigate('dashboard')">Analytics</div>
-              <div class="nav-item" data-page="subscriptions" onclick="navigate('subscriptions')">Subscriptions</div>
-              <div class="nav-item" data-page="support" onclick="navigate('support')">Support</div>
+              <div class="nav-item active" data-page="overview" onclick="navigate('overview')">🏠 Dashboard</div>
+              <div class="nav-item" data-page="integrations" onclick="navigate('integrations')">🔗 Integrasi</div>
+              <div class="nav-item" data-page="dashboard" onclick="navigate('dashboard')">📊 Analytics</div>
+              <div class="nav-item" data-page="subscriptions" onclick="navigate('subscriptions')">💳 Langganan</div>
+              <div class="nav-item" data-page="customers" onclick="navigate('customers')">👥 Customer</div>
+              <div class="nav-item" data-page="settings" onclick="navigate('settings')">⚙️ Settings</div>
+              <div class="nav-item" style="margin-top:10px;color:#ffb4b4" onclick="logout()">🚪 Logout</div>
             </div>
 
             <div style="margin-top:12px">
@@ -244,8 +256,22 @@
 
           <!-- Main -->
           <main style="min-height:520px">
+            <!-- Welcome (visible after login) -->
+            <div id="welcomeCard" class="card" style="display:none">
+              <div style="display:flex;justify-content:space-between;align-items:center">
+                <div>
+                  <h3 id="welcomeTitle" style="margin:0">Selamat datang, Admin FluentBiz 👋</h3>
+                  <div class="small muted" id="welcomeSub">FluentBiz siap menganalisis data Anda secara otomatis.</div>
+                </div>
+                <div>
+                  <div class="small muted">Trial</div>
+                  <div id="welcomeTrial" style="font-weight:800">—</div>
+                </div>
+              </div>
+            </div>
+
             <!-- Overview page -->
-            <div id="overview" class="card page">
+            <div id="overview" class="card page" style="display:none">
               <div style="display:flex;justify-content:space-between;align-items:center">
                 <div>
                   <h3 style="margin:0">Overview</h3>
@@ -383,6 +409,28 @@
               </div>
             </div>
 
+            <!-- Customers -->
+            <div id="customers" class="page" style="display:none">
+              <div class="card">
+                <h3>Customers</h3>
+                <div class="small muted">Daftar pelanggan / pengguna (demo)</div>
+                <table style="margin-top:12px"><thead><tr><th>ID</th><th>Name</th><th>Joined</th></tr></thead><tbody id="customerList"></tbody></table>
+              </div>
+            </div>
+
+            <!-- Settings -->
+            <div id="settings" class="page" style="display:none">
+              <div class="card">
+                <h3>Settings</h3>
+                <div class="small muted">Profile & integration settings</div>
+                <div style="margin-top:12px">
+                  <label class="small muted">Name</label>
+                  <input id="profileName" class="input" placeholder="Your name" />
+                  <div style="margin-top:10px"><button class="btn primary" onclick="saveProfile()">Save</button></div>
+                </div>
+              </div>
+            </div>
+
             <!-- Support -->
             <div id="support" class="page" style="display:none">
               <div class="card">
@@ -403,38 +451,177 @@
     </footer>
   </div>
 
+  <!-- Auth Modal -->
+  <div id="authBackdrop" class="modal-backdrop">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="authTitle">
+      <div id="authContent">
+        <!-- content injected by JS -->
+      </div>
+    </div>
+  </div>
+
 <script type="module">
 /*
-  FluentBiz single-file app:
-  - Landing (premium static gradient)
-  - Dashboard (seller/company/app)
-  - Demo integrations (localStorage), trial (localStorage), autopilot demo
-  - Backend placeholders: BACKEND_BASE (change when you deploy backend)
-  - To activate Firebase/real backend, paste configs and implement endpoints described in comments.
+  Final FluentBiz single-file app with:
+  - Landing (premium)
+  - Login/Register modal (modern minimal) using localStorage (demo)
+  - After login => Main page with welcome message + sidebar + pages
+  - Dashboard auto changes by integration type
+  - BACKEND_BASE & firebaseConfig placeholders for later
 */
 
-const BACKEND_BASE = 'https://YOUR_BACKEND_DOMAIN/api'; // replace after deploying backend
-const firebaseConfig = {}; // paste your firebase config here to enable Auth/Firestore
+const BACKEND_BASE = 'https://YOUR_BACKEND_DOMAIN/api'; // replace later
+const firebaseConfig = {}; // paste Firebase config to enable Auth later
 
-// optional: init firebase if provided (demo keeps localStorage fallback)
-let FB;
-try {
-  if(firebaseConfig && Object.keys(firebaseConfig).length){
-    const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js');
-    const { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword } = await import('https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js');
-    const { getFirestore, doc, getDoc, setDoc, updateDoc, serverTimestamp, collection, addDoc } = await import('https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js');
-    initializeApp(firebaseConfig);
-    FB = { getAuth, onAuthStateChanged, getFirestore, doc, getDoc, setDoc, updateDoc, serverTimestamp, collection, addDoc };
-    console.log('Firebase initialized');
-  }
-} catch(e){ console.warn('Firebase init failed (ok if demo):', e); }
-
-// small helpers
+// Helpers
 const el = id => document.getElementById(id);
 function formatRp(n){ try{return 'Rp '+Number(n).toLocaleString('id-ID');}catch(e){return n;} }
 function sleep(ms){ return new Promise(r=>setTimeout(r,ms)); }
 
-// reveal on scroll
+// Auth modal logic
+const authBackdrop = el('authBackdrop');
+function openAuthModal(mode='login'){
+  renderAuth(mode);
+  authBackdrop.classList.add('show');
+}
+function closeAuthModal(){ authBackdrop.classList.remove('show'); }
+window.openAuthModal = openAuthModal;
+
+// Render auth content
+function renderAuth(mode){
+  const content = document.getElementById('authContent');
+  if(mode==='login'){
+    content.innerHTML = `
+      <h3 id="authTitle">Masuk ke FluentBiz</h3>
+      <div class="muted-ghost" style="margin-top:6px">Masukkan email & kata sandi demo</div>
+      <input id="loginEmail" class="input" placeholder="email@domain.com" />
+      <input id="loginPass" class="input" type="password" placeholder="password" />
+      <div style="display:flex;gap:8px;margin-top:12px">
+        <button class="btn primary" onclick="handleLogin()">Masuk</button>
+        <button class="btn ghost" onclick="renderAuth('register')">Buat Akun</button>
+      </div>
+      <div style="margin-top:8px" class="small muted-ghost">Atau gunakan <b>Demo Account</b></div>
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <button class="btn ghost" onclick="useDemoAccount()">Gunakan Demo</button>
+      </div>
+    `;
+  } else {
+    content.innerHTML = `
+      <h3 id="authTitle">Buat Akun FluentBiz</h3>
+      <div class="muted-ghost" style="margin-top:6px">Cukup email & nama untuk memulai trial 7 hari.</div>
+      <input id="regName" class="input" placeholder="Nama lengkap" />
+      <input id="regEmail" class="input" placeholder="email@domain.com" />
+      <input id="regPass" class="input" type="password" placeholder="password" />
+      <div style="display:flex;gap:8px;margin-top:12px">
+        <button class="btn primary" onclick="handleRegister()">Buat Akun</button>
+        <button class="btn ghost" onclick="renderAuth('login')">Sudah punya akun?</button>
+      </div>
+    `;
+  }
+}
+
+// Demo bootstrap: create demo user if none exists
+function ensureDemoUser(){
+  const u = JSON.parse(localStorage.getItem('fluentbiz_user')||'null');
+  if(!u){
+    const demo = { id:'demo_admin', name:'Admin FluentBiz', email:'admin@fluentbiz.demo', created: new Date().toISOString() };
+    localStorage.setItem('fluentbiz_user', JSON.stringify(demo));
+  }
+}
+ensureDemoUser();
+
+// Use demo account -> login as demo
+function useDemoAccount(){
+  const user = JSON.parse(localStorage.getItem('fluentbiz_user'));
+  localStorage.setItem('fluentbiz_current', JSON.stringify(user));
+  closeAuthModal();
+  afterLogin();
+}
+window.useDemoAccount = useDemoAccount;
+
+// Handle register (demo)
+function handleRegister(){
+  const name = document.getElementById('regName').value.trim();
+  const email = document.getElementById('regEmail').value.trim();
+  const pass = document.getElementById('regPass').value.trim();
+  if(!name || !email || !pass) return alert('Isi semua field');
+  const id = 'user_' + Date.now();
+  const user = { id, name, email, created:new Date().toISOString() };
+  localStorage.setItem('fluentbiz_user', JSON.stringify(user));
+  // mark trial start
+  localStorage.setItem('fluentbiz_trialStart', new Date().toISOString());
+  localStorage.setItem('fluentbiz_current', JSON.stringify(user));
+  closeAuthModal();
+  afterLogin();
+}
+window.handleRegister = handleRegister;
+
+// Handle login (demo)
+function handleLogin(){
+  const email = document.getElementById('loginEmail').value.trim();
+  const pass = document.getElementById('loginPass').value.trim();
+  if(!email || !pass) return alert('Isi email & password');
+  // demo: accept any password if email matches stored demo or stored user
+  let user = JSON.parse(localStorage.getItem('fluentbiz_user') || 'null');
+  if(user && user.email === email){
+    localStorage.setItem('fluentbiz_current', JSON.stringify(user));
+    closeAuthModal();
+    afterLogin();
+    return;
+  }
+  // else create a simple user for this email (demo fallback)
+  user = { id:'user_'+Date.now(), name: email.split('@')[0], email, created:new Date().toISOString() };
+  localStorage.setItem('fluentbiz_user', JSON.stringify(user));
+  localStorage.setItem('fluentbiz_current', JSON.stringify(user));
+  localStorage.setItem('fluentbiz_trialStart', new Date().toISOString());
+  closeAuthModal();
+  afterLogin();
+}
+window.handleLogin = handleLogin;
+
+// Logout
+function logout(){
+  localStorage.removeItem('fluentbiz_current');
+  // hide main UI
+  el('mainSidebar').style.display='none';
+  el('welcomeCard').style.display='none';
+  // show landing view (scroll top)
+  window.scrollTo({top:0,behavior:'smooth'});
+  alert('Anda telah logout (demo).');
+}
+
+// After login: show main app area, welcome, etc.
+function afterLogin(){
+  const current = JSON.parse(localStorage.getItem('fluentbiz_current') || 'null');
+  if(!current) return;
+  // show sidebar & welcome
+  el('mainSidebar').style.display='block';
+  el('welcomeCard').style.display='block';
+  el('userShort').innerText = current.name || current.email.split('@')[0];
+  el('welcomeTitle').innerText = `Selamat datang, ${current.name || current.email.split('@')[0]} 👋`;
+  // trial info
+  const ts = localStorage.getItem('fluentbiz_trialStart');
+  if(ts){
+    const left = Math.max(0, 7 - Math.floor((Date.now() - new Date(ts))/ (1000*60*60*24)));
+    el('navTrialInfo').innerText = `Trial: ${left} hari tersisa`;
+    el('trialSmall').innerText = `Trial started ${new Date(ts).toLocaleDateString()}`;
+    el('welcomeTrial').innerText = `${left} hari`;
+  } else {
+    el('navTrialInfo').innerText = 'Trial: inactive';
+    el('trialSmall').innerText = 'Trial: inactive';
+    el('welcomeTrial').innerText = '—';
+  }
+  el('planBadge').innerText = localStorage.getItem('fluentbiz_plan') || 'Free';
+  // show overview by default
+  navigate('overview');
+  renderOverview();
+  determineAndShowDashboard();
+  // scroll to dashboard area
+  setTimeout(()=>{ document.getElementById('demoDashboard').scrollIntoView({behavior:'smooth'}); }, 300);
+}
+window.logout = logout;
+
+// Reveal elements on scroll
 const reveals = document.querySelectorAll('.reveal');
 function onScrollReveal(){
   reveals.forEach(r=>{
@@ -457,22 +644,14 @@ function initHeroChart(){
 }
 initHeroChart();
 
-// Smooth scroll helper
+// Smooth scroll
 function scrollToSection(id){
   const elm = document.getElementById(id);
   if(elm) elm.scrollIntoView({behavior:'smooth',block:'start'});
 }
 window.scrollToSection = scrollToSection;
 
-// Start Now -> scroll to demo dashboard and open overview
-function startNow(){
-  scrollToSection('demoDashboard');
-  // small delay then open overview
-  setTimeout(()=>{ navigate('overview'); determineAndShowDashboard(); }, 300);
-}
-window.startNow = startNow;
-
-// ---------------------- App state ----------------------
+// ---------------- App State & Integrations (localStorage demo) ----------------
 let state = {
   integrations: JSON.parse(localStorage.getItem('fluentbiz_integrations')||'{}'),
   trialStart: localStorage.getItem('fluentbiz_trialStart') || null,
@@ -480,19 +659,31 @@ let state = {
   plan: localStorage.getItem('fluentbiz_plan') || 'Free'
 };
 
-// render initial UI
+// load local state to UI
 function loadLocalState(){
   const ints = state.integrations;
   el('integrationList').innerText = Object.keys(ints).length ? Object.keys(ints).join(', ') : 'No integrations';
   el('activeIntegrations').innerText = Object.keys(ints).length ? Object.keys(ints).map(k=>`${k} (${ints[k].type})`).join(', ') : 'No integrations';
-  el('navTrialInfo').innerText = state.trialStart ? `Trial: ${new Date(state.trialStart).toLocaleDateString()}` : 'Trial: inactive';
-  el('trialSmall').innerText = state.trialStart ? `Trial started ${new Date(state.trialStart).toLocaleDateString()}` : 'Trial: inactive';
-  el('planBadge').innerText = state.plan;
-  determineAndShowDashboard();
+  const cur = JSON.parse(localStorage.getItem('fluentbiz_current')||'null');
+  if(cur){
+    el('mainSidebar').style.display='block';
+    el('userShort').innerText = cur.name || cur.email.split('@')[0];
+    el('planBadge').innerText = state.plan;
+    const ts = state.trialStart || localStorage.getItem('fluentbiz_trialStart');
+    if(ts){
+      const left = Math.max(0, 7 - Math.floor((Date.now() - new Date(ts))/ (1000*60*60*24)));
+      el('navTrialInfo').innerText = `Trial: ${left} hari tersisa`;
+      el('trialSmall').innerText = `Trial started ${new Date(ts).toLocaleDateString()}`;
+    }
+    el('welcomeCard').style.display='block';
+  } else {
+    el('mainSidebar').style.display='none';
+    el('welcomeCard').style.display='none';
+  }
 }
 loadLocalState();
 
-// -------------------- Navigation --------------------
+// Navigation
 function navigate(page){
   document.querySelectorAll('.page').forEach(p=>p.style.display='none');
   const elp = document.getElementById(page);
@@ -500,11 +691,11 @@ function navigate(page){
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
   const nav = document.querySelector(`.nav-item[data-page="${page}"]`);
   if(nav) nav.classList.add('active');
-  window.scrollTo({top: el('demoDashboard').offsetTop - 20, behavior:'smooth'});
+  window.scrollTo({top: document.getElementById('demoDashboard').offsetTop - 20, behavior:'smooth'});
 }
 window.navigate = navigate;
 
-// -------------------- Integrations (demo + placeholders) --------------------
+// Integrations
 function simulateConnect(type,key){
   const id = `${key}_${Date.now()}`;
   const store = JSON.parse(localStorage.getItem('fluentbiz_integrations')||'{}');
@@ -513,20 +704,16 @@ function simulateConnect(type,key){
   state.integrations = store;
   loadLocalState();
   alert(`Connected (demo): ${key} as ${type}`);
-  // navigate to dashboard relevant
   setTimeout(()=> determineAndShowDashboard(), 300);
 }
 window.simulateConnect = simulateConnect;
 
 function connectExternal(type, provider){
-  // In production: redirect to BACKEND_BASE + /integrations/connect ... to start OAuth
   const url = `${BACKEND_BASE}/integrations/connect?type=${type}&provider=${provider}`;
   alert(`Starting integration flow (placeholder): ${url}`);
-  // window.location.href = url;
 }
-window.connectExternal = connectExternal;
 
-// -------------------- Dashboard selection logic --------------------
+// Dashboard selection logic
 function determineAndShowDashboard(){
   const gv = el('globalView').value;
   if(gv && gv !== 'auto'){ state.activeView = gv; showDashboardFor(gv); return; }
@@ -542,7 +729,7 @@ function determineAndShowDashboard(){
 }
 window.determineAndShowDashboard = determineAndShowDashboard;
 
-// -------------------- Renderers --------------------
+// Renderers & templates (same as previous version)
 let charts = {};
 function renderLine(id, labels, data, label){
   const canvas = el(id);
@@ -564,7 +751,6 @@ function renderDoughnut(id, labels, data){
   charts[id] = new Chart(ctx, { type:'doughnut', data:{ labels, datasets:[{ data }]}, options:{ responsive:true } });
 }
 
-/* Overview primary chart */
 let primaryChart;
 function renderOverview(){
   const series = [120000,160000,200000,240000];
@@ -579,7 +765,6 @@ function renderOverview(){
   el('insightsList').innerText = 'Autopilot: No anomalies detected';
 }
 
-/* show dashboard for type */
 function showDashboardFor(type){
   navigate('dashboard');
   el('dashTitle').innerText = type==='seller' ? 'Seller Dashboard' : type==='company' ? 'Company Dashboard' : type==='app' ? 'App Dashboard' : 'Dashboard';
@@ -592,7 +777,6 @@ function showDashboardFor(type){
   else container.innerHTML = `<div class="card">No specialized dashboard available.</div>`;
 }
 
-/* templates */
 function sellerDashboardHTML(){ return `
   <div class="metrics" style="margin-bottom:12px">
     <div class="metric"><div class="small muted">Total Sales</div><div style="font-weight:800" id="sd_totalSales">—</div><div class="small muted">Last 30d</div></div>
@@ -632,7 +816,6 @@ function appDashboardHTML(){ return `
   <div class="card" style="margin-top:12px"><h4 style="margin:0">Recent Events</h4><div id="ad_events" class="small muted">—</div></div>
 `;}
 
-/* Fill dashboards (try backend -> fallback demo) */
 async function renderSellerDashboard(){
   try{
     const res = await fetch(`${BACKEND_BASE}/summary?seller=true`);
@@ -702,7 +885,7 @@ function fillAppDemo(){
   el('ad_events').innerText = 'No recent critical events';
 }
 
-// ------------------ Autopilot (demo + backend) ------------------
+// Autopilot
 let autopilotInterval;
 function runAutopilotNow(){
   fetch(`${BACKEND_BASE}/autopilot/run`, { method:'POST' }).then(r=>r.json()).then(res=>{
@@ -733,40 +916,50 @@ function demoAutopilot(){
   el('mTotalRevenue').innerText = formatRp(total);
 }
 
-// -------------------- Trial & Subscription (demo) --------------------
+// Trial & subscription
 function startFree(){
   if(!state.trialStart){
     state.trialStart = new Date().toISOString();
     localStorage.setItem('fluentbiz_trialStart', state.trialStart);
     el('navTrialInfo').innerText = `Trial: ${new Date(state.trialStart).toLocaleDateString()}`;
     el('trialSmall').innerText = `Trial started ${new Date(state.trialStart).toLocaleDateString()}`;
+    el('welcomeTrial').innerText = '7 hari';
     alert('Trial 7 hari diaktifkan (demo).');
   } else alert('Trial sudah aktif.');
 }
 window.startFree = startFree;
 
 function startPro(){
-  // placeholder: call backend to create Stripe session
   const checkoutUrl = `${BACKEND_BASE}/checkout/create-session`;
   alert(`Redirect to checkout (placeholder): ${checkoutUrl}`);
 }
 window.startPro = startPro;
 
-// -------------------- Misc utilities --------------------
+// Misc utilities
 function exportCSV(){ alert('Export CSV (placeholder). Integrate backend for real export.'); }
 function sendTicket(){ const v = el('supportText').value || ''; if(!v) return alert('Tuliskan pesan'); const t = JSON.parse(localStorage.getItem('fluentbiz_tickets')||'[]'); t.push({text:v,created:new Date().toISOString()}); localStorage.setItem('fluentbiz_tickets', JSON.stringify(t)); alert('Ticket terkirim (demo)'); el('supportText').value=''; }
 function disconnectAll(){ localStorage.removeItem('fluentbiz_integrations'); state.integrations={}; loadLocalState(); alert('Disconnected all (demo)'); renderOverview(); }
 window.disconnectAll = disconnectAll;
 
-// simulate connect function visible globally
-window.simulateConnect = simulateConnect;
+// Customer list demo
+function renderCustomers(){
+  const c = [
+    {id:'#C001',name:'Andi',joined:'2025-08-10'},
+    {id:'#C002',name:'Sari',joined:'2025-09-01'}
+  ];
+  el('customerList').innerHTML = c.map(x=>`<tr><td>${x.id}</td><td>${x.name}</td><td>${x.joined}</td></tr>`).join('');
+}
+renderCustomers();
 
-// initial render
+// Initial UI setup
 renderOverview();
 determineAndShowDashboard();
-
-// Export initial hero section reveal
 setTimeout(()=>{ document.querySelectorAll('.reveal').forEach(r=>r.classList.add('visible')); }, 600);
+
+// Close auth modal on backdrop click
+authBackdrop.addEventListener('click', (e)=>{
+  if(e.target === authBackdrop) closeAuthModal();
+});
 
 </script>
 </body>
