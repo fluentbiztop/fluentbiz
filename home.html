@@ -3,9 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>FluentBiz — Dashboard (v2.0)</title>
-
-  <!-- Fonts & Chart.js -->
+  <title>FluentBiz — Dashboard (Professional)</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Poppins:wght@600&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
@@ -13,14 +11,13 @@
     :root{
       --bg:#f7fbff;
       --panel:#ffffff;
-      --accent:#2563EB; /* biru utama */
-      --accent-2:#6C63FF; /* ungu aksen */
+      --accent:#2563EB;
+      --accent-2:#6C63FF;
       --muted:#6b7280;
       --border:rgba(7,16,42,0.06);
       --radius:12px;
       --success:#10B981;
       --danger:#EF4444;
-      --glass: rgba(255,255,255,0.6);
     }
     *{box-sizing:border-box;font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;}
     html,body{height:100%}
@@ -28,7 +25,7 @@
     .wrap{max-width:1260px;margin:20px auto;padding:18px}
     .layout{display:grid;grid-template-columns:260px 1fr;gap:20px;align-items:start}
 
-    /* SIDEBAR */
+    /* Sidebar */
     .sidebar{background:var(--panel);border-radius:14px;padding:18px;border:1px solid var(--border);height:calc(100vh - 40px);position:sticky;top:20px;box-shadow:0 6px 18px rgba(20,30,60,0.03)}
     .brand{display:flex;gap:12px;align-items:center;margin-bottom:14px}
     .brand .mark{width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,var(--accent-2),var(--accent));display:flex;align-items:center;justify-content:center;color:white;font-weight:800}
@@ -39,7 +36,7 @@
     .small{font-size:13px;color:var(--muted)}
     .muted-title{margin-top:12px;color:var(--muted);font-weight:600;font-size:13px}
 
-    /* MAIN */
+    /* Main */
     .main{min-height:80vh}
     .topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px}
     .welcome-card{background:var(--panel);padding:16px;border-radius:12px;border:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;gap:12px;box-shadow:0 6px 18px rgba(20,30,60,0.02)}
@@ -64,25 +61,19 @@
 
     .note{margin-top:10px;color:var(--muted);font-size:13px}
 
-    /* LOADING OVERLAY */
-    .overlay{
-      position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(7,12,30,0.28);z-index:9999;
-    }
-    .overlay.show{display:flex}
-    .loader{
-      background:linear-gradient(180deg,white, #f3f8ff);padding:18px;border-radius:12px;display:flex;gap:12px;align-items:center;box-shadow:0 12px 40px rgba(20,30,60,0.2)
-    }
-    .spinner{
-      width:44px;height:44px;border-radius:50%;border:4px solid rgba(37,99,235,0.12);border-top-color:var(--accent);animation:spin 1s linear infinite;
-    }
-    @keyframes spin{to{transform:rotate(360deg)}}
+    /* canvas fixes */
+    canvas{width:100% !important; display:block}
+    #primaryChart{height:280px !important}
+    #miniChart{height:160px !important; filter: drop-shadow(0 4px 8px rgba(37,99,235,0.05));}
+    @media(max-width:768px){ #primaryChart{height:220px !important} #miniChart{height:120px !important} }
 
-    @media(max-width:980px){
-      .layout{grid-template-columns:1fr}
-      .metrics{grid-template-columns:repeat(2,1fr)}
-      .grid-2{grid-template-columns:1fr}
-      .sidebar{position:static;height:auto}
-    }
+    /* overlay */
+    .overlay{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(7,12,30,0.28);z-index:9999}
+    .overlay.show{display:flex}
+    .loader{background:linear-gradient(180deg,white,#f3f8ff);padding:18px;border-radius:12px;display:flex;gap:12px;align-items:center;box-shadow:0 12px 40px rgba(20,30,60,0.2)}
+    .spinner{width:44px;height:44px;border-radius:50%;border:4px solid rgba(37,99,235,0.12);border-top-color:var(--accent);animation:spin 1s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    @media(max-width:980px){ .layout{grid-template-columns:1fr} .metrics{grid-template-columns:repeat(2,1fr)} .grid-2{grid-template-columns:1fr} .sidebar{position:static;height:auto} }
   </style>
 </head>
 <body>
@@ -168,7 +159,12 @@
                 </div>
                 <div class="small">Updated <span id="lastUpdated">just now</span></div>
               </div>
-              <canvas id="primaryChart" height="200" style="margin-top:12px"></canvas>
+
+              <!-- main chart -->
+              <canvas id="primaryChart"></canvas>
+
+              <!-- mini chart -->
+              <canvas id="miniChart" style="margin-top:18px;opacity:0.95"></canvas>
             </div>
 
             <div class="card" style="margin-top:12px">
@@ -223,7 +219,7 @@
     </div>
   </div>
 
-  <!-- Loading overlay for Autopilot / analysis -->
+  <!-- Loading overlay -->
   <div id="overlay" class="overlay" aria-hidden="true">
     <div class="loader" role="status" aria-live="polite">
       <div class="spinner" aria-hidden="true"></div>
@@ -235,94 +231,112 @@
   </div>
 
 <script>
-/*
-  FluentBiz Home v2.0
-  - Professional clean UI
-  - Dashboard adapts per integration type (seller / company / app)
-  - Autopilot calls backend at BACKEND_BASE + '/autopilot/run'
-  - Loading overlay shown while analysis runs
-  - Fallback demo analyzer if backend not reachable
-*/
+/* CONFIG: ganti URL backend-mu jika berbeda */
+const BACKEND_BASE = 'https://fluentbiz-backend.vercel.app/api'; // contoh
 
-/* CONFIG: ganti BACKEND_BASE sesuai URL backendmu setelah deploy */
-const BACKEND_BASE = 'https://fluentbiz-backend.vercel.app/api'; // contoh, ganti kalau perlu
-
-/* Helpers */
+/* helpers */
 const $ = id => document.getElementById(id);
-const showOverlay = (msg='Memproses data, mohon tunggu.') => {
-  $('overlay').classList.add('show'); $('overlay').setAttribute('aria-hidden','false');
-  $('overlayMsg').innerText = msg;
-};
-const hideOverlay = () => {
-  $('overlay').classList.remove('show'); $('overlay').setAttribute('aria-hidden','true');
-};
+const showOverlay = (msg='Memproses data...') => { $('overlay').classList.add('show'); $('overlay').setAttribute('aria-hidden','false'); $('overlayMsg').innerText = msg; };
+const hideOverlay = () => { $('overlay').classList.remove('show'); $('overlay').setAttribute('aria-hidden','true'); };
 
-/* Require login (localStorage demo) */
 const current = JSON.parse(localStorage.getItem('fluentbiz_current') || 'null');
 if(!current){ location.href = 'index.html'; }
 $('welcomeTitle').innerText = `Selamat datang, ${current.name || current.email.split('@')[0]} 👋`;
 
-/* Trial badge */
+/* trial */
 const ts = localStorage.getItem('fluentbiz_trialStart');
-if(ts){
-  const left = Math.max(0, 7 - Math.floor((Date.now() - new Date(ts)) / (1000*60*60*24)));
-  $('trialBadge').innerText = `${left} hari tersisa`;
-} else $('trialBadge').innerText = '—';
+if(ts){ const left = Math.max(0, 7 - Math.floor((Date.now() - new Date(ts)) / (1000*60*60*24))); $('trialBadge').innerText = `${left} hari tersisa`; } else $('trialBadge').innerText = '—';
 
-/* Chart & state */
-let primaryChart = null;
+/* charts */
+let primaryChart = null, miniChart = null;
 let autopilot = localStorage.getItem('fluentbiz_autopilot') === 'true';
 $('autoBtn').innerText = autopilot ? 'Disable' : 'Enable';
 let autopilotInterval = null;
 
-function initChart(type='bar', labels=[], datasets=[]){
+function formatRp(n){ try { return 'Rp ' + Number(n).toLocaleString('id-ID'); } catch(e){ return n } }
+
+/* init primary chart (flexible) */
+function initPrimaryChart(type='bar', labels=[], datasets=[]){
   const ctx = $('primaryChart').getContext('2d');
   if(primaryChart) primaryChart.destroy();
   primaryChart = new Chart(ctx, {
-    type: type,
+    type,
     data: { labels, datasets },
     options: {
-      plugins:{legend:{display:false}},
-      responsive:true,
-      maintainAspectRatio:false,
+      animation: { duration: 800, easing: 'easeOutQuart' },
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          mode: 'index', intersect: false,
+          callbacks: {
+            label: ctx => {
+              const v = ctx.parsed.y;
+              return (typeof v === 'number') ? v.toLocaleString('id-ID') : v;
+            }
+          }
+        }
+      },
       scales: {
-        x: { grid: { display: false } },
-        y: { grid: { color: 'rgba(7,16,42,0.03)' }, ticks: { beginAtZero:true } }
+        x: { grid: { display: false }, ticks: { font: { size: 12 } } },
+        y: {
+          beginAtZero: true,
+          grace: '10%',
+          grid: { color: 'rgba(7,16,42,0.04)' },
+          ticks: { font: { size: 12 }, callback: v => (typeof v === 'number' ? v.toLocaleString('id-ID') : v) }
+        }
       }
     }
   });
 }
 
-/* format rupiah */
-function formatRp(n){
-  try { return 'Rp ' + Number(n).toLocaleString('id-ID'); } catch(e){ return n; }
+/* mini chart renderer */
+function renderMiniChart(labels=[], values=[], color='#6C63FF'){
+  const ctx = $('miniChart').getContext('2d');
+  if(miniChart) miniChart.destroy();
+  miniChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        data: values,
+        borderColor: color,
+        backgroundColor: hexToRgba(color,0.12),
+        fill: true,
+        tension: 0.35,
+        pointRadius: 0
+      }]
+    },
+    options: {
+      plugins: { legend: { display: false } },
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: { duration: 700, easing: 'easeOutQuart' },
+      scales: { x: { display: false }, y: { display: false } }
+    }
+  });
 }
 
-/* Integration store helpers */
-function loadIntegrations(){
-  return JSON.parse(localStorage.getItem('fluentbiz_integrations') || '{}');
-}
-function getActiveIntegration(){
-  const store = loadIntegrations();
-  const keys = Object.keys(store);
-  if(!keys.length) return null;
-  // choose last connected as primary
-  return store[keys[keys.length-1]];
-}
-function updateActiveIntegrationsUI(){
-  const store = loadIntegrations();
-  $('activeIntegrations').innerText = Object.keys(store).length ? Object.keys(store).map(k=>store[k].key + ' (' + store[k].type + ')').join(', ') : 'Belum ada integrasi';
+/* util: hex -> rgba */
+function hexToRgba(hex, a=1){
+  hex = hex.replace('#','');
+  const r = parseInt(hex.substring(0,2),16), g = parseInt(hex.substring(2,4),16), b = parseInt(hex.substring(4,6),16);
+  return `rgba(${r},${g},${b},${a})`;
 }
 
-/* Renderers per type */
+/* integration helpers (localStorage demo) */
+function loadIntegrations(){ return JSON.parse(localStorage.getItem('fluentbiz_integrations') || '{}'); }
+function getActiveIntegration(){ const s = loadIntegrations(); const keys = Object.keys(s); if(!keys.length) return null; return s[keys[keys.length-1]]; }
+function updateActiveIntegrationsUI(){ const store = loadIntegrations(); $('activeIntegrations').innerText = Object.keys(store).length ? Object.keys(store).map(k=>store[k].key + ' (' + store[k].type + ')').join(', ') : 'Belum ada integrasi'; }
+
+/* renderers per type */
 function renderSeller(payload){
   $('chartTitle').innerText = 'Tren Penjualan (Seller)';
   $('chartSubtitle').innerText = 'Penjualan & revenue 7 hari';
-  const labels = payload.chart.labels;
-  const data = payload.chart.values;
-  initChart('bar', labels, [{ label:'Revenue', data, backgroundColor: '#6C63FF' }]);
+  initPrimaryChart('bar', payload.chart.labels, [{ label:'Revenue', data: payload.chart.values, backgroundColor:'#6C63FF' }]);
+  renderMiniChart(payload.chart.labels, payload.chart.values, '#6C63FF');
 
-  // metrics
   $('mRevenue').innerText = payload.metrics.totalRevenue ? formatRp(payload.metrics.totalRevenue) : '-';
   $('mOrders').innerText = payload.metrics.totalOrders || '-';
   $('mUsers').innerText = payload.metrics.avgDAU || '-';
@@ -334,166 +348,108 @@ function renderSeller(payload){
   $('detailTop').innerText = payload.extra?.topProduct || 'Produk A — 1.2k sold';
   $('detailRegion').innerText = payload.extra?.regions || 'Jakarta, Bandung';
   $('detailAlert').innerText = payload.extra?.alert || '—';
-  $('aiInsight').innerText = payload.insight || 'Produk kamu naik 12% minggu ini! Pertahankan strategi saat ini.';
+  $('aiInsight').innerText = payload.insight || 'Produk kamu naik 12% minggu ini! Pertahankan strategi.';
 }
 
 function renderCompany(payload){
   $('chartTitle').innerText = 'Revenue vs Cost (Company)';
   $('chartSubtitle').innerText = 'Bulanan (6 bulan)';
-  initChart('line', payload.chart.labels, [
+  initPrimaryChart('line', payload.chart.labels, [
     { label:'Revenue', data: payload.chart.revenue, borderColor:'#2575FC', fill:false },
     { label:'Cost', data: payload.chart.cost, borderColor:'#F97316', fill:false }
   ]);
+  renderMiniChart(payload.chart.labels, payload.chart.revenue || [], '#2575FC');
 
   $('mRevenue').innerText = payload.metrics.totalRevenue ? formatRp(payload.metrics.totalRevenue) : '-';
-  $('mOrders').innerText = '-';
-  $('mUsers').innerText = payload.metrics.employees || '-';
-  $('mGrowth').innerText = payload.metrics.avgMargin || '-';
-  $('mRevenueDelta').innerText = payload.metrics.avgMargin || '-';
-  $('mConv').innerText = '-';
-  $('mRet').innerText = '-';
-
+  $('mOrders').innerText = '-'; $('mUsers').innerText = payload.metrics.employees || '-';
+  $('mGrowth').innerText = payload.metrics.avgMargin || '-'; $('mRevenueDelta').innerText = payload.metrics.avgMargin || '-';
   $('detailTop').innerText = 'Margin: ' + (payload.metrics.avgMargin || '-');
   $('detailRegion').innerText = payload.extra?.branch || 'HQ Jakarta • Branch 4';
   $('detailAlert').innerText = payload.extra?.alert || '—';
-  $('aiInsight').innerText = payload.insight || 'Laba bersih meningkat 8% dibanding bulan lalu.';
+  $('aiInsight').innerText = payload.insight || 'Laba bersih meningkat.';
 }
 
 function renderApp(payload){
   $('chartTitle').innerText = 'DAU (App)';
   $('chartSubtitle').innerText = 'Pengguna aktif harian (7 hari)';
-  initChart('line', payload.chart.labels, [{ label:'DAU', data: payload.chart.values, borderColor:'#10B981', fill:false }]);
+  initPrimaryChart('line', payload.chart.labels, [{ label:'DAU', data: payload.chart.values, borderColor:'#10B981', fill:false }]);
+  renderMiniChart(payload.chart.labels, payload.chart.values || [], '#10B981');
 
-  $('mRevenue').innerText = '-';
-  $('mOrders').innerText = '-';
-  $('mUsers').innerText = payload.metrics.avgDAU || '-';
-  $('mGrowth').innerText = payload.metrics.growth || '-';
-  $('mRevenueDelta').innerText = payload.metrics.growth || '-';
-  $('mConv').innerText = '-';
-  $('mRet').innerText = payload.metrics.retention || '-';
-
+  $('mRevenue').innerText = '-'; $('mOrders').innerText = '-';
+  $('mUsers').innerText = payload.metrics.avgDAU || '-'; $('mGrowth').innerText = payload.metrics.growth || '-';
   $('detailTop').innerText = payload.extra?.topFeature || 'Feature X — 42% usage';
-  $('detailRegion').innerText = payload.extra?.topCountry || 'Top country: Indonesia';
+  $('detailRegion').innerText = payload.extra?.topCountry || 'Indonesia';
   $('detailAlert').innerText = payload.extra?.alert || '—';
-  $('aiInsight').innerText = payload.insight || 'Engagement pengguna naik 6% minggu ini.';
+  $('aiInsight').innerText = payload.insight || 'Engagement naik.';
 }
 
-/* Render generic overview */
+/* overview when no integration */
 function renderOverview(){
   $('chartTitle').innerText = 'Overview';
-  $('chartSubtitle').innerText = 'Hubungkan data untuk analisis lebih mendalam';
-  initChart('bar', ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'], [{ label:'Example', data: [100,200,150,300,220,340,400], backgroundColor:'#6C63FF' }]);
-  $('mRevenue').innerText = '-';
-  $('mOrders').innerText = '-';
-  $('mUsers').innerText = '-';
-  $('mGrowth').innerText = '-';
-  $('detailTop').innerText = '—';
-  $('detailRegion').innerText = '—';
-  $('detailAlert').innerText = '—';
-  $('aiInsight').innerText = 'Tidak ada integrasi aktif — klik Manage Integrations untuk mulai.';
+  $('chartSubtitle').innerText = 'Hubungkan sumber data untuk insight';
+  initPrimaryChart('bar',['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],[{label:'Example',data:[100,200,150,300,220,340,400],backgroundColor:'#6C63FF'}]);
+  renderMiniChart(['W1','W2','W3','W4'],[120,200,180,240],'#6C63FF');
+  $('mRevenue').innerText='-'; $('mOrders').innerText='-'; $('mUsers').innerText='-'; $('mGrowth').innerText='-';
+  $('aiInsight').innerText='Tidak ada integrasi aktif — klik Manage Integrations untuk mulai.';
 }
 
-/* Use backend analyzer if available, otherwise demoAnalyze */
+/* backend analyzer call with fallback demo */
 async function analyzeWithBackend(type){
   showOverlay('Meminta analisis ke backend...');
-  try {
-    const res = await fetch(`${BACKEND_BASE}/autopilot/run`, {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ type })
+  try{
+    const res = await fetch(`${BACKEND_BASE}/autopilot/run`,{
+      method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ type })
     });
     if(!res.ok) throw new Error('HTTP ' + res.status);
     const data = await res.json();
     hideOverlay();
-    // backend returns: { status, type, metrics, chart, insight, ... }
     return data;
-  } catch (e){
-    // fallback demo
+  }catch(e){
     hideOverlay();
     return demoAnalyze(type);
   }
 }
 
-/* Demo analyzer: builds payload matching backend shape */
+/* demo analyzer (returns same shape as backend expected) */
 function demoAnalyze(type){
-  // small simulated "processing"
-  const now = new Date();
-  const lastUpdated = now.toLocaleTimeString();
-  $('lastUpdated').innerText = lastUpdated;
-
+  const now = new Date(); $('lastUpdated').innerText = now.toLocaleTimeString();
   if(type === 'seller'){
-    const labels = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
-    const values = [420000,480000,510000,470000,550000,620000,700000].map(v => Math.round(v*(0.9+Math.random()*0.25)));
-    return {
-      status:'ok', type:'seller',
-      metrics:{ totalRevenue: values.reduce((a,b)=>a+b,0), totalOrders: 120 + Math.floor(Math.random()*50), growth: '+' + (8 + Math.floor(Math.random()*6)) + '%' },
-      chart:{ labels, values },
-      insight: `Produk kamu naik ${8 + Math.floor(Math.random()*6)}% minggu ini. Fokus stok & promosi.`,
-      extra:{ topProduct:'Produk A', regions:'Jakarta, Bandung', alert: Math.random()>0.92 ? 'Return rate tinggi' : '—' }
-    };
+    const labels=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+    const values=[420000,480000,510000,470000,550000,620000,700000].map(v=>Math.round(v*(0.9+Math.random()*0.25)));
+    return { status:'ok', type:'seller', metrics:{totalRevenue: values.reduce((a,b)=>a+b,0), totalOrders:120+Math.floor(Math.random()*50), growth:'+'+(8+Math.floor(Math.random()*6))+'%' }, chart:{labels, values}, insight:'Produk naik, cek stok & promosi', extra:{topProduct:'Produk A',regions:'Jakarta,Bandung',alert:Math.random()>0.92?'Return rate tinggi':'—'} };
   } else if(type === 'company'){
-    const labels = ['May','Jun','Jul','Aug','Sep','Oct'];
-    const revenue = [4200000,4800000,5100000,4700000,5500000,6200000].map(v => Math.round(v*(0.9+Math.random()*0.25)));
-    const cost = revenue.map(v => Math.round(v*(0.55 + Math.random()*0.15)));
-    const profit = revenue.map((r,i)=>r-cost[i]);
-    const avgMargin = Math.round(profit.reduce((a,b)=>a+b,0) / revenue.reduce((a,b)=>a+b,0) * 100);
-    return {
-      status:'ok', type:'company',
-      metrics:{ totalRevenue: revenue.reduce((a,b)=>a+b,0), avgMargin: avgMargin + '%' , employees: 40 + Math.floor(Math.random()*10) },
-      chart:{ labels, revenue, cost },
-      insight: `Laba bersih meningkat ${avgMargin}% dibanding bulan lalu.`,
-      extra:{ branch:'HQ Jakarta', alert: Math.random()>0.95 ? 'Biaya operasional naik' : '—' }
-    };
+    const labels=['May','Jun','Jul','Aug','Sep','Oct'];
+    const revenue=[4200000,4800000,5100000,4700000,5500000,6200000].map(v=>Math.round(v*(0.9+Math.random()*0.25)));
+    const cost=revenue.map(r=>Math.round(r*(0.55+Math.random()*0.15)));
+    const profit=revenue.map((r,i)=>r-cost[i]); const avgMargin=Math.round(profit.reduce((a,b)=>a+b,0)/revenue.reduce((a,b)=>a+b,0)*100);
+    return { status:'ok', type:'company', metrics:{totalRevenue:revenue.reduce((a,b)=>a+b,0), avgMargin:avgMargin+'%', employees:40+Math.floor(Math.random()*10)}, chart:{labels, revenue, cost}, insight:'Laba bersih meningkat '+avgMargin+'% dibanding bulan lalu.', extra:{branch:'HQ Jakarta',alert:Math.random()>0.95?'Biaya naik':'—'} };
   } else if(type === 'app'){
-    const labels = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
-    const values = [1200,1500,1700,1800,1900,2100,2300].map(v => Math.round(v*(0.9+Math.random()*0.25)));
-    const avg = Math.round(values.reduce((a,b)=>a+b,0) / values.length);
-    return {
-      status:'ok', type:'app',
-      metrics:{ avgDAU: avg, growth: '+' + (3 + Math.floor(Math.random()*7)) + '%' },
-      chart:{ labels, values },
-      insight: `Engagement pengguna naik ${3 + Math.floor(Math.random()*6)}% minggu ini.`,
-      extra:{ topFeature:'Push Notification', topCountry:'Indonesia', alert: Math.random()>0.9 ? 'Crash spike detected' : '—' }
-    };
+    const labels=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+    const values=[1200,1500,1700,1800,1900,2100,2300].map(v=>Math.round(v*(0.9+Math.random()*0.25)));
+    const avg=Math.round(values.reduce((a,b)=>a+b,0)/values.length);
+    return { status:'ok', type:'app', metrics:{avgDAU:avg, growth:'+'+(3+Math.floor(Math.random()*7))+'%'}, chart:{labels, values}, insight:'Engagement naik.', extra:{topFeature:'Push Notification',topCountry:'Indonesia',alert:Math.random()>0.9?'Crash spike detected':'—'} };
   } else {
-    return { status:'ok', type:null, metrics:{}, chart:{ labels:[], values:[] }, insight: 'No integration' };
+    return { status:'ok', type:null, metrics:{}, chart:{labels:[],values:[]}, insight:'No integration' };
   }
 }
 
-/* Run autopilot: choose primary integration type, call backend/demo, then render */
+/* run autopilot: picks active integration and updates UI */
 async function runAutopilotNow(){
   const integration = getActiveIntegration();
   if(!integration) return alert('Belum ada integrasi aktif. Silakan connect integrations dulu.');
   showOverlay('AI FluentBiz sedang menganalisis ' + integration.type + ' ...');
   const data = await analyzeWithBackend(integration.type);
-  // Normalize backend/demo shape to renderer-friendly payloads
   if(data.status !== 'ok'){ hideOverlay(); return alert('Analisis gagal: ' + (data.message || 'unknown')); }
 
-  // prepare payload for renderer
-  let payload = {};
+  // normalize and route to renderer
   if(data.type === 'seller'){
-    payload = {
-      metrics: data.metrics || {},
-      chart: { labels: data.chart.labels || [], values: data.chart.values || data.chart.values || [] },
-      insight: data.insight,
-      extra: data.extra || {}
-    };
+    const payload = { metrics: data.metrics || {}, chart: { labels: data.chart.labels || [], values: data.chart.values || data.chart.values || [] }, insight: data.insight, extra: data.extra || {} };
     renderSeller(payload);
   } else if(data.type === 'company'){
-    payload = {
-      metrics: data.metrics || {},
-      chart: { labels: data.chart.labels || [], revenue: data.chart.revenue || [], cost: data.chart.cost || [] },
-      insight: data.insight,
-      extra: data.extra || {}
-    };
+    const payload = { metrics: data.metrics || {}, chart: { labels: data.chart.labels || [], revenue: data.chart.revenue || [], cost: data.chart.cost || [] }, insight: data.insight, extra: data.extra || {} };
     renderCompany(payload);
   } else if(data.type === 'app'){
-    payload = {
-      metrics: data.metrics || {},
-      chart: { labels: data.chart.labels || [], values: data.chart.values || data.chart.values || [] },
-      insight: data.insight,
-      extra: data.extra || {}
-    };
+    const payload = { metrics: data.metrics || {}, chart: { labels: data.chart.labels || [], values: data.chart.values || [] }, insight: data.insight, extra: data.extra || {} };
     renderApp(payload);
   } else {
     renderOverview();
@@ -501,43 +457,20 @@ async function runAutopilotNow(){
 
   hideOverlay();
   $('lastUpdated').innerText = new Date().toLocaleTimeString();
-  // push recent event
   addRecentEvent({ id:'#A'+Date.now(), type: integration.type, value: data.metrics.totalRevenue ? formatRp(data.metrics.totalRevenue) : data.metrics.avgDAU || '-' });
 }
 window.runAutopilotNow = runAutopilotNow;
 
-/* Autopilot toggle */
-function toggleAutopilot(){
-  autopilot = !autopilot;
-  localStorage.setItem('fluentbiz_autopilot', autopilot ? 'true' : 'false');
-  $('autoBtn').innerText = autopilot ? 'Disable' : 'Enable';
-  if(autopilot){
-    startAutopilot();
-  } else {
-    stopAutopilot();
-  }
-}
+/* autopilot toggle */
+function toggleAutopilot(){ autopilot = !autopilot; localStorage.setItem('fluentbiz_autopilot', autopilot ? 'true' : 'false'); $('autoBtn').innerText = autopilot ? 'Disable' : 'Enable'; if(autopilot) startAutopilot(); else stopAutopilot(); }
 window.toggleAutopilot = toggleAutopilot;
+function startAutopilot(){ runAutopilotNow(); autopilotInterval = setInterval(runAutopilotNow, 30000); } // demo 30s
+function stopAutopilot(){ if(autopilotInterval) clearInterval(autopilotInterval); autopilotInterval = null; }
 
-function startAutopilot(){
-  runAutopilotNow(); // immediate
-  // DEMO: 30s interval. For production set to 30*60*1000 (30 minutes) or backend-driven schedules.
-  autopilotInterval = setInterval(runAutopilotNow, 30000);
-}
-function stopAutopilot(){
-  if(autopilotInterval) clearInterval(autopilotInterval);
-  autopilotInterval = null;
-}
+/* recent events */
+function addRecentEvent(ev){ const tbody = $('recentTable'); const row = document.createElement('tr'); row.innerHTML = `<td>${ev.id}</td><td>${ev.type}</td><td>${ev.value}</td>`; tbody.prepend(row); }
 
-/* Recent events */
-function addRecentEvent(ev){
-  const tbody = $('recentTable');
-  const row = document.createElement('tr');
-  row.innerHTML = `<td>${ev.id}</td><td>${ev.type}</td><td>${ev.value}</td>`;
-  tbody.prepend(row);
-}
-
-/* Simulate connect (demo) */
+/* simulate connect (demo) - supports multiple marketplaces and types */
 function simulateConnect(type, key){
   const id = `${key}_${Date.now()}`;
   const store = JSON.parse(localStorage.getItem('fluentbiz_integrations')||'{}');
@@ -545,44 +478,39 @@ function simulateConnect(type, key){
   localStorage.setItem('fluentbiz_integrations', JSON.stringify(store));
   updateActiveIntegrationsUI();
   // auto-run analysis once connected
-  setTimeout(() => runAutopilotNow(), 400);
+  setTimeout(()=> runAutopilotNow(), 400);
   alert(`Connected (demo): ${key} as ${type}`);
 }
 window.simulateConnect = simulateConnect;
 
-/* Quick integration modal (simple confirm) */
+/* quick integration chooser (supports marketplaces) */
 function openIntegrations(){
-  const choice = confirm('Demo connect Shopee? (OK = Shopee seller, Cancel = Connect App SDK)');
-  if(choice) simulateConnect('seller','shopee');
-  else simulateConnect('app','sdk');
+  const choice = prompt('Pilihan demo connect: tulis salah satu -> shopee, tokopedia, lazada, tiktok, erp, app\nContoh: shopee');
+  if(!choice) return;
+  const c = choice.trim().toLowerCase();
+  if(['shopee','tokopedia','lazada','tiktok'].includes(c)) simulateConnect('seller', c);
+  else if(c === 'erp') simulateConnect('company','erp');
+  else if(c === 'app') simulateConnect('app','sdk');
+  else alert('Pilihan tidak dikenali.');
 }
 
-/* Navigation: simple show/hide pages (we keep all pages minimal for now) */
+/* navigation (placeholder) */
 function switchPage(e, page){
   document.querySelectorAll('main .page').forEach(p=>p.style.display='none');
-  // we only have the main content in this file; keep placeholder for other pages if needed
   document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active'));
   e.currentTarget.classList.add('active');
 }
 window.switchPage = switchPage;
 
-/* Initial UI state */
-function initialRender(){
-  updateActiveIntegrationsUI();
-  const primary = getActiveIntegration();
-  if(primary){
-    // immediate render with backend/demo
-    runAutopilotNow();
-  } else {
-    renderOverview();
-  }
-  if(autopilot) startAutopilot();
-}
+/* init UI on load */
+function initialRender(){ updateActiveIntegrationsUI(); const pri = getActiveIntegration(); if(pri) runAutopilotNow(); else renderOverview(); if(autopilot) startAutopilot(); }
 initialRender();
 
-/* Profile / logout */
+/* profile/logout */
 function doLogout(){ localStorage.removeItem('fluentbiz_current'); location.href='index.html'; }
 
+/* utilities */
+function updateActiveIntegrationsUI(){ const store = loadIntegrations(); $('activeIntegrations').innerText = Object.keys(store).length ? Object.keys(store).map(k=>store[k].key + ' (' + store[k].type + ')').join(', ') : 'Belum ada integrasi'; }
 </script>
 </body>
 </html>
