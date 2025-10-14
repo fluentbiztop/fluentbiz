@@ -1,285 +1,140 @@
- <!doctype html>
+<!doctype html>
 <html lang="id" data-theme="light">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>FluentBiz — Dashboard</title>
+  <meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>FluentBiz — Portal</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Poppins:wght@600&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
   <style>
-    /* THEME: uses CSS variables to support light/dark */
-    :root{
-      --bg:#f7fbff;
-      --panel:#ffffff;
-      --muted:#6b7280;
-      --text:#07102a;
-      --accent:#2563EB;
-      --accent-2:#6C63FF;
-      --border:rgba(7,16,42,0.06);
-      --success:#10B981;
-      --danger:#EF4444;
-    }
-    [data-theme="dark"]{
-      --bg: #07102a;
-      --panel: linear-gradient(180deg, rgba(10,14,30,0.6), rgba(8,10,20,0.6));
-      --muted: #9aa4b2;
-      --text: #e6eef9;
-      --border: rgba(255,255,255,0.04);
-    }
-
-    *{box-sizing:border-box;font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;}
-    body{margin:0;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;min-height:100vh}
-    .wrap{max-width:1260px;margin:20px auto;padding:18px}
-    .layout{display:grid;grid-template-columns:260px 1fr;gap:20px;align-items:start}
-
-    /* Sidebar */
-    .sidebar{background:var(--panel);border-radius:14px;padding:18px;border:1px solid var(--border);height:calc(100vh - 40px);position:sticky;top:20px;box-shadow:0 8px 30px rgba(16,24,40,0.04)}
-    .brand{display:flex;gap:12px;align-items:center;margin-bottom:12px}
-    .mark{width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,var(--accent-2),var(--accent));display:flex;align-items:center;justify-content:center;color:white;font-weight:800}
-    .title{font-weight:700;font-family:Poppins}
-    .nav{display:flex;flex-direction:column;gap:6px;margin-top:10px}
-    .nav button{display:flex;align-items:center;gap:10px;padding:10px;border-radius:10px;border:0;background:transparent;color:var(--muted);cursor:pointer;text-align:left}
-    .nav button.active{background:linear-gradient(90deg, rgba(37,99,235,0.07), rgba(108,99,255,0.03));color:var(--accent);font-weight:700}
+    :root{--accent:#2563EB;--accent2:#6C63FF;--muted:#6b7280;--bg:#f7fbff;--panel:#fff;--border:rgba(7,16,42,0.06)}
+    [data-theme="dark"]{--bg:#07102a;--panel:linear-gradient(180deg,rgba(10,14,30,0.6),rgba(8,10,20,0.6));--muted:#9aa4b2;--border:rgba(255,255,255,0.04)}
+    *{box-sizing:border-box;font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial}
+    body{margin:0;background:var(--bg);color:var(--text,#07102a);min-height:100vh}
+    .wrap{max-width:1200px;margin:20px auto;padding:18px}
+    .layout{display:grid;grid-template-columns:260px 1fr;gap:20px}
+    .sidebar{background:var(--panel);padding:16px;border-radius:12px;border:1px solid var(--border);height:calc(100vh - 40px);position:sticky;top:20px}
+    .mark{width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,var(--accent2),var(--accent));display:flex;align-items:center;justify-content:center;color:white;font-weight:800}
+    .nav{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+    .nav button{padding:10px;border-radius:8px;border:0;background:transparent;text-align:left;color:var(--muted);cursor:pointer}
+    .nav button.active{background:rgba(37,99,235,0.07);color:var(--accent);font-weight:700}
     .small{font-size:13px;color:var(--muted)}
-
-    .muted-title{margin-top:12px;color:var(--muted);font-weight:600;font-size:13px}
-
-    /* Main */
-    .main{min-height:80vh}
-    .topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px}
-    .welcome{background:var(--panel);padding:14px;border-radius:12px;border:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;gap:12px;box-shadow:0 8px 30px rgba(16,24,40,0.03)}
-    .metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:14px}
-    .metric{background:var(--panel);padding:14px;border-radius:10px;border:1px solid var(--border);box-shadow:0 8px 20px rgba(16,24,40,0.03)}
-    .metric .label{font-size:13px;color:var(--muted)}
-    .metric .value{font-weight:800;font-size:18px;margin-top:6px}
-
-    .grid-2{display:grid;grid-template-columns:2fr 1fr;gap:12px;margin-top:12px}
-    .card{background:var(--panel);padding:14px;border-radius:12px;border:1px solid var(--border);box-shadow:0 8px 20px rgba(16,24,40,0.02)}
-    table{width:100%;border-collapse:collapse}
-    th,td{padding:10px;border-bottom:1px solid rgba(7,16,42,0.04);text-align:left;font-size:13px}
-    .note{margin-top:10px;color:var(--muted);font-size:13px}
-
-    /* canvas fixes */
-    canvas{width:100% !important; display:block}
-    #primaryChart{height:280px !important}
-    #miniChart{height:140px !important; filter: drop-shadow(0 6px 18px rgba(37,99,235,0.06));}
-    @media(max-width:768px){ #primaryChart{height:220px !important} #miniChart{height:110px !important} .layout{grid-template-columns:1fr} .metrics{grid-template-columns:repeat(2,1fr)} .grid-2{grid-template-columns:1fr} .sidebar{position:static;height:auto} }
-
-    /* overlay */
-    .overlay{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(7,12,30,0.28);z-index:9999}
-    .overlay.show{display:flex}
-    .loader{background:linear-gradient(180deg,white,#f3f8ff);padding:18px;border-radius:12px;display:flex;gap:12px;align-items:center;box-shadow:0 12px 40px rgba(20,30,60,0.2)}
-    .spinner{width:44px;height:44px;border-radius:50%;border:4px solid rgba(37,99,235,0.12);border-top-color:var(--accent);animation:spin 1s linear infinite}
-    @keyframes spin{to{transform:rotate(360deg)}}
+    .hero{background:linear-gradient(180deg,#ffffffee, #f3f8ff);padding:18px;border-radius:12px;border:1px solid var(--border)}
+    .grid-feat{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+    .card{background:var(--panel);padding:14px;border-radius:12px;border:1px solid var(--border)}
+    .btn{padding:8px 12px;border-radius:8px;border:0;cursor:pointer;font-weight:700}
+    .btn.primary{background:linear-gradient(90deg,var(--accent),var(--accent2));color:white}
+    @media(max-width:980px){ .layout{grid-template-columns:1fr} .sidebar{position:static;height:auto} .grid-feat{grid-template-columns:1fr} }
   </style>
 </head>
 <body>
   <div class="wrap">
     <div class="layout">
-      <!-- SIDEBAR -->
-      <aside class="sidebar" aria-label="Primary">
-        <div class="brand">
+      <aside class="sidebar">
+        <div style="display:flex;gap:10px;align-items:center">
           <div class="mark">FB</div>
           <div>
-            <div class="title">FluentBiz</div>
+            <div style="font-weight:700">FluentBiz</div>
             <div class="small">Analitik Otomatis</div>
           </div>
         </div>
 
-        <nav class="nav" role="navigation" aria-label="Main">
-          <button class="active" data-page="home" onclick="switchPage(event,'home')">🏠 Home</button>
-          <button data-page="analytics" onclick="switchPage(event,'analytics')">📊 Analytics</button>
-          <button data-page="integrations" onclick="switchPage(event,'integrations')">🔗 Integrations</button>
-          <button data-page="subscriptions" onclick="switchPage(event,'subscriptions')">💳 Subscriptions</button>
-          <button data-page="customers" onclick="switchPage(event,'customers')">👥 Customers</button>
-          <button data-page="settings" onclick="switchPage(event,'settings')">⚙️ Settings</button>
-          <button style="margin-top:10px;color:var(--danger)" onclick="doLogout()">🚪 Logout</button>
+        <nav class="nav" id="sideNav" style="margin-top:12px">
+          <button class="active" data-page="home" onclick="goPage(event,'home')">🏠 Home</button>
+          <button data-page="analytics" onclick="goPage(event,'analytics')">📊 Analytics</button>
+          <button data-page="integrations" onclick="goPage(event,'integrations')">🔗 Integrations</button>
+          <button data-page="subscriptions" onclick="goPage(event,'subscriptions')">💳 Subscriptions</button>
+          <button data-page="support" onclick="goPage(event,'support')">💬 Customer Service</button>
+          <button data-page="settings" onclick="goPage(event,'settings')">⚙️ Settings</button>
+          <button style="margin-top:10px;color:#d14343" onclick="logout()">🚪 Logout</button>
         </nav>
 
-        <div class="muted-title">Autopilot</div>
-        <div style="display:flex;gap:8px;margin-top:8px">
-          <button class="btn" onclick="runAutopilotNow()">Run</button>
-          <button class="btn primary" id="autoBtn" onclick="toggleAutopilot()">Enable</button>
-        </div>
-
-        <div style="margin-top:12px;display:flex;gap:8px;align-items:center;justify-content:space-between">
+        <div style="margin-top:12px">
           <div class="small">Theme</div>
-          <div>
-            <button class="btn ghost" onclick="toggleTheme()">Light/Dark</button>
-          </div>
+          <div style="display:flex;gap:8px;margin-top:8px"><button class="btn" onclick="toggleTheme()">Light/Dark</button></div>
         </div>
-
-        <div class="note" style="margin-top:12px">Pro tip: Autopilot demo setiap 30s. Untuk produksi gunakan scheduler backend.</div>
       </aside>
 
-      <!-- MAIN -->
-      <main class="main">
-        <!-- HOME PAGE -->
+      <main>
+        <!-- Home utama: showroom + practical -->
         <section id="home" class="page">
-          <div class="topbar">
-            <div class="welcome">
-              <div>
-                <div id="welcomeTitle" style="font-weight:800">Selamat datang, Admin FluentBiz 👋</div>
-                <div id="welcomeSmall" class="small">Analitik otomatis untuk seller, perusahaan & aplikasi.</div>
-              </div>
-              <div style="text-align:right">
-                <div class="small">Status Trial</div>
-                <div id="trialBadge" style="font-weight:800">—</div>
-              </div>
-            </div>
-          </div>
-
-          <!-- METRICS -->
-          <div class="metrics" id="metricsWrap">
-            <div class="metric"><div class="label">Total Revenue (30d)</div><div class="value" id="mRevenue">—</div><div class="small">Perubahan: <span id="mRevenueDelta">—</span></div></div>
-            <div class="metric"><div class="label">Orders (30d)</div><div class="value" id="mOrders">—</div><div class="small">Konversi: <span id="mConv">—</span></div></div>
-            <div class="metric"><div class="label">Active Users</div><div class="value" id="mUsers">—</div><div class="small">Retention: <span id="mRet">—</span></div></div>
-            <div class="metric"><div class="label">Growth</div><div class="value" id="mGrowth">—</div><div class="small">Last 7 days</div></div>
-          </div>
-
-          <!-- CHARTS -->
-          <div class="grid-2">
+          <div class="hero">
             <div>
-              <div class="card">
-                <div style="display:flex;justify-content:space-between;align-items:center">
-                  <div><div id="chartTitle" style="font-weight:800">Overview</div><div class="small" id="chartSubtitle">Hubungkan integrasi untuk insight</div></div>
-                  <div class="small">Updated <span id="lastUpdated">just now</span></div>
+              <div style="display:flex;justify-content:space-between;align-items:center">
+                <div>
+                  <div style="font-weight:800;font-size:18px" id="welcome">Selamat datang, Admin FluentBiz 👋</div>
+                  <div class="small">Pilih integrasi atau buka dashboard manual untuk input data.</div>
                 </div>
-
-                <canvas id="primaryChart"></canvas>
-                <canvas id="miniChart" style="margin-top:18px;opacity:0.95"></canvas>
+                <div style="text-align:right">
+                  <div class="small">Trial</div>
+                  <div id="trial" style="font-weight:800">—</div>
+                </div>
               </div>
 
-              <div class="card" style="margin-top:12px">
-                <div style="display:flex;justify-content:space-between;align-items:center">
-                  <div style="font-weight:800">Detail</div><div class="small">Eksplorasi</div>
+              <div class="grid-feat">
+                <div class="card">
+                  <div style="font-weight:800">Integrasi Cepat</div>
+                  <div class="small" style="margin-top:8px">Sambungkan Shopee / Tokopedia / Lazada / TikTok / ERP / App SDK</div>
+                  <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
+                    <button class="btn primary" onclick="quickConnect('shopee')">Shopee</button>
+                    <button class="btn primary" onclick="quickConnect('tokopedia')">Tokopedia</button>
+                    <button class="btn primary" onclick="quickConnect('lazada')">Lazada</button>
+                    <button class="btn primary" onclick="quickConnect('tiktok')">TikTok Shop</button>
+                    <button class="btn primary" onclick="quickConnect('erp')">ERP</button>
+                    <button class="btn primary" onclick="quickConnect('app')">App SDK</button>
+                  </div>
                 </div>
-                <div style="display:flex;gap:12px;margin-top:12px;flex-wrap:wrap">
-                  <div style="flex:1;min-width:160px">
-                    <div class="small">Top Product / Feature</div>
-                    <div id="detailTop" style="font-weight:700;margin-top:6px">—</div>
-                  </div>
-                  <div style="flex:1;min-width:160px">
-                    <div class="small">Region / Branch</div>
-                    <div id="detailRegion" style="font-weight:700;margin-top:6px">—</div>
-                  </div>
-                  <div style="flex:1;min-width:160px">
-                    <div class="small">Alerts</div>
-                    <div id="detailAlert" style="font-weight:700;margin-top:6px;color:var(--danger)">—</div>
+
+                <div class="card">
+                  <div style="font-weight:800">Dashboard Manual</div>
+                  <div class="small" style="margin-top:8px">Masuk ke dashboard manual untuk input data toko offline / kasir</div>
+                  <div style="margin-top:12px">
+                    <button class="btn primary" onclick="toManual()">Buka Dashboard Manual</button>
                   </div>
                 </div>
               </div>
             </div>
 
-            <aside>
-              <div class="card">
-                <div style="font-weight:800">Insight (AI)</div>
-                <div class="small" id="aiInsight" style="margin-top:8px">Hubungkan data untuk melihat insight otomatis.</div>
-                <div class="note" style="margin-top:10px;color:var(--muted)">Insight dihasilkan berdasarkan data integrasi atau demo analyzer.</div>
-              </div>
-
-              <div class="card" style="margin-top:12px">
-                <div style="display:flex;justify-content:space-between;align-items:center">
-                  <div style="font-weight:800">Integrasi Aktif</div>
-                  <div class="small"><button class="btn ghost" onclick="openIntegrations()">Kelola</button></div>
-                </div>
-                <div id="activeIntegrations" class="small" style="margin-top:10px">Belum ada integrasi</div>
-              </div>
-
-              <div class="card" style="margin-top:12px">
-                <div style="font-weight:800">Recent Events</div>
-                <table style="margin-top:10px">
-                  <thead><tr><th>ID</th><th>Type</th><th>Value</th></tr></thead>
-                  <tbody id="recentTable"><tr><td>#S001</td><td>Order</td><td>Rp 125.000</td></tr></tbody>
-                </table>
-              </div>
-            </aside>
+            <div class="card" style="width:100%;max-width:420px">
+              <div style="font-weight:800">Ringkasan Cepat</div>
+              <div class="small" style="margin-top:8px">Lihat integrasi aktif & jalankan analisis manual di tiap dashboard.</div>
+              <div style="margin-top:12px" id="activeList">Belum ada integrasi</div>
+              <div style="margin-top:12px"><button class="btn" onclick="openIntegrations()">Kelola Integrasi</button></div>
+            </div>
           </div>
         </section>
 
-        <!-- ANALYTICS PAGE -->
+        <!-- Analytics placeholder -->
         <section id="analytics" class="page" style="display:none">
-          <div class="card">
-            <div style="display:flex;justify-content:space-between;align-items:center">
-              <div style="font-weight:800">Analytics</div>
-              <div class="small">Filters & export</div>
-            </div>
-            <div class="small" style="margin-top:10px">Halaman analytics menampilkan laporan lengkap; sedang dalam mode demo.</div>
-            <div style="margin-top:12px">
-              <canvas id="analyticsChart" height="120"></canvas>
-            </div>
-          </div>
+          <div class="card"><div style="font-weight:800">Analytics</div><div class="small" style="margin-top:8px">Halaman laporan menyeluruh (placeholder demo).</div></div>
         </section>
 
-        <!-- INTEGRATIONS PAGE -->
+        <!-- Integrations page -->
         <section id="integrations" class="page" style="display:none">
-          <div class="card">
-            <div style="font-weight:800">Integrations</div>
-            <div class="small" style="margin-top:8px">Hubungkan marketplace & sumber data — demo dulu, nanti ganti ke OAuth/API nyata.</div>
-
+          <div class="card"><div style="font-weight:800">Integrations</div>
+            <div class="small" style="margin-top:8px">Demo connectors — nanti ganti ke OAuth/API nyata.</div>
             <div style="margin-top:12px;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px">
-              <div class="card">
-                <div style="font-weight:700">Shopee</div><div class="small">OAuth/API</div>
-                <div style="margin-top:10px"><button class="btn primary" onclick="simulateConnect('seller','shopee')">Demo connect</button></div>
-              </div>
-              <div class="card">
-                <div style="font-weight:700">Tokopedia</div><div class="small">OAuth/API</div>
-                <div style="margin-top:10px"><button class="btn primary" onclick="simulateConnect('seller','tokopedia')">Demo connect</button></div>
-              </div>
-              <div class="card">
-                <div style="font-weight:700">Lazada</div><div class="small">OAuth/API</div>
-                <div style="margin-top:10px"><button class="btn primary" onclick="simulateConnect('seller','lazada')">Demo connect</button></div>
-              </div>
-              <div class="card">
-                <div style="font-weight:700">TikTok Shop</div><div class="small">OAuth/API</div>
-                <div style="margin-top:10px"><button class="btn primary" onclick="simulateConnect('seller','tiktok')">Demo connect</button></div>
-              </div>
-              <div class="card">
-                <div style="font-weight:700">ERP / CSV</div><div class="small">Upload CSV / API</div>
-                <div style="margin-top:10px"><button class="btn primary" onclick="simulateConnect('company','erp')">Demo connect</button></div>
-              </div>
-              <div class="card">
-                <div style="font-weight:700">App SDK</div><div class="small">Integrasi SDK</div>
-                <div style="margin-top:10px"><button class="btn primary" onclick="simulateConnect('app','sdk')">Demo connect</button></div>
-              </div>
+              <div class="card"><div style="font-weight:700">Shopee</div><div class="small">Demo connector</div><div style="margin-top:8px"><button class="btn primary" onclick="connectDemo('seller','shopee')">Connect</button></div></div>
+              <div class="card"><div style="font-weight:700">Tokopedia</div><div class="small">Demo connector</div><div style="margin-top:8px"><button class="btn primary" onclick="connectDemo('seller','tokopedia')">Connect</button></div></div>
+              <div class="card"><div style="font-weight:700">Lazada</div><div class="small">Demo connector</div><div style="margin-top:8px"><button class="btn primary" onclick="connectDemo('seller','lazada')">Connect</button></div></div>
+              <div class="card"><div style="font-weight:700">TikTok Shop</div><div class="small">Demo connector</div><div style="margin-top:8px"><button class="btn primary" onclick="connectDemo('seller','tiktok')">Connect</button></div></div>
+              <div class="card"><div style="font-weight:700">ERP / CSV</div><div class="small">Demo connector</div><div style="margin-top:8px"><button class="btn primary" onclick="connectDemo('company','erp')">Connect</button></div></div>
+              <div class="card"><div style="font-weight:700">App SDK</div><div class="small">Demo connector</div><div style="margin-top:8px"><button class="btn primary" onclick="connectDemo('app','sdk')">Connect</button></div></div>
             </div>
           </div>
         </section>
 
-        <!-- SUBSCRIPTIONS -->
         <section id="subscriptions" class="page" style="display:none">
-          <div class="card">
-            <div style="font-weight:800">Langganan</div>
-            <div class="small" style="margin-top:8px">Trial 7 hari. Untuk produksi, hubungkan Stripe / Midtrans.</div>
-            <div style="margin-top:12px;display:flex;gap:12px;flex-wrap:wrap">
-              <div class="card" style="flex:1;min-width:200px">
-                <div style="font-weight:700">Free Trial</div><div class="small">7 hari gratis</div>
-                <div style="margin-top:10px"><button class="btn primary" onclick="activateTrial()">Aktifkan Trial</button></div>
-              </div>
-              <div class="card" style="flex:1;min-width:200px">
-                <div style="font-weight:700">Pro</div><div class="small">Rp199.000 / bulan</div>
-                <div style="margin-top:10px"><button class="btn primary" onclick="subscribe()">Subscribe</button></div>
-              </div>
-            </div>
-          </div>
+          <div class="card"><div style="font-weight:800">Subscriptions</div><div class="small" style="margin-top:8px">Trial 7 hari — hubungkan pembayaran untuk produksi.</div></div>
         </section>
 
-        <!-- CUSTOMERS -->
-        <section id="customers" class="page" style="display:none">
-          <div class="card">
-            <div style="font-weight:800">Customers</div>
-            <div class="small" style="margin-top:8px">Daftar pelanggan (demo)</div>
-            <table style="margin-top:12px"><thead><tr><th>ID</th><th>Name</th><th>Joined</th></tr></thead><tbody id="customerTable"></tbody></table>
-          </div>
+        <section id="support" class="page" style="display:none">
+          <div class="card"><div style="font-weight:800">Customer Service</div><div class="small" style="margin-top:8px">Hubungi: support@fluentbiz.test (demo)</div></div>
         </section>
 
-        <!-- SETTINGS -->
         <section id="settings" class="page" style="display:none">
           <div class="card">
             <div style="font-weight:800">Settings</div>
             <div class="small" style="margin-top:8px">Profil & preferensi</div>
-            <div style="margin-top:12px">
+            <div style="margin-top:10px">
               <label class="small">Nama</label>
               <input id="profileName" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);margin-top:8px"/>
               <div style="margin-top:10px"><button class="btn primary" onclick="saveProfile()">Simpan</button></div>
@@ -291,293 +146,48 @@
     </div>
   </div>
 
-  <!-- Loading overlay -->
-  <div id="overlay" class="overlay" aria-hidden="true">
-    <div class="loader" role="status" aria-live="polite">
-      <div class="spinner" aria-hidden="true"></div>
-      <div>
-        <div style="font-weight:800">AI FluentBiz sedang menganalisis...</div>
-        <div class="small" id="overlayMsg">Memproses data, mohon tunggu.</div>
-      </div>
-    </div>
-  </div>
-
 <script>
-/* ---------------- CONFIG ----------------
-   Ganti BACKEND_BASE dengan URL backend kamu setelah deploy,
-   format expected endpoint: POST {BACKEND_BASE}/autopilot/run { type }
------------------------------------------*/
-const BACKEND_BASE = 'https://fluentbiz-backend.vercel.app/api'; // ganti jika perlu
-
-/* Helpers */
-const $ = id => document.getElementById(id);
-const showOverlay = (msg='Memproses data...') => { $('overlay').classList.add('show'); $('overlay').setAttribute('aria-hidden','false'); $('overlayMsg').innerText = msg; };
-const hideOverlay = () => { $('overlay').classList.remove('show'); $('overlay').setAttribute('aria-hidden','true'); };
-
-/* Theme (light/dark toggle) */
-function initTheme(){
-  const saved = localStorage.getItem('fluentbiz_theme') || 'light';
-  document.documentElement.setAttribute('data-theme', saved);
-}
-function toggleTheme(){
-  const cur = document.documentElement.getAttribute('data-theme') || 'light';
-  const next = cur === 'light' ? 'dark' : 'light';
-  document.documentElement.setAttribute('data-theme', next);
-  localStorage.setItem('fluentbiz_theme', next);
-}
-initTheme();
-
-/* Require login demo */
-const current = JSON.parse(localStorage.getItem('fluentbiz_current') || 'null');
-if(!current){ location.href = 'index.html'; }
-$('welcomeTitle').innerText = `Selamat datang, ${current.name || current.email.split('@')[0]} 👋`;
-
-/* Trial badge */
+/* Home portal logic */
+const current = JSON.parse(localStorage.getItem('fluentbiz_current')||'null');
+if(!current) location.href='index.html';
+document.getElementById('welcome').innerText = `Selamat datang, ${current.name||current.email.split('@')[0]} 👋`;
 const ts = localStorage.getItem('fluentbiz_trialStart');
-if(ts){ const left = Math.max(0, 7 - Math.floor((Date.now() - new Date(ts)) / (1000*60*60*24))); $('trialBadge').innerText = `${left} hari tersisa`; } else $('trialBadge').innerText = '—';
+document.getElementById('trial').innerText = ts ? `${Math.max(0,7 - Math.floor((Date.now()-new Date(ts))/(1000*60*60*24)))} hari tersisa` : '—';
 
-/* State */
-let primaryChart = null, miniChart = null;
-let autopilot = localStorage.getItem('fluentbiz_autopilot') === 'true';
-$('autoBtn').innerText = autopilot ? 'Disable' : 'Enable';
-let autopilotInterval = null;
-
-/* Format Rp */
-function formatRp(n){ try { return 'Rp ' + Number(n).toLocaleString('id-ID'); } catch(e){ return n } }
-
-/* Chart init (primary) */
-function initPrimaryChart(type='bar', labels=[], datasets=[]){
-  const ctx = $('primaryChart').getContext('2d');
-  if(primaryChart) primaryChart.destroy();
-  primaryChart = new Chart(ctx, {
-    type,
-    data: { labels, datasets },
-    options: {
-      animation: { duration: 700, easing: 'easeOutQuart' },
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          mode: 'index', intersect: false,
-          callbacks: { label: ctx => { const v = ctx.parsed.y; return (typeof v === 'number') ? v.toLocaleString('id-ID') : v; } }
-        }
-      },
-      scales: {
-        x: { grid: { display: false }, ticks:{font:{size:12}} },
-        y: { beginAtZero:true, grace:'10%', grid:{color:'rgba(7,16,42,0.04)'}, ticks:{callback:v => (typeof v === 'number'? v.toLocaleString('id-ID'): v)} }
-      }
-    }
-  });
+function goPage(e, id){
+  document.querySelectorAll('.page').forEach(p=>p.style.display='none');
+  document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active'));
+  e.currentTarget.classList.add('active');
+  document.getElementById(id).style.display='block';
 }
+/* initial */
+document.querySelectorAll('.page').forEach(p=>p.style.display='none');
+document.getElementById('home').style.display='block';
 
-/* mini chart renderer */
-function renderMiniChart(labels=[], values=[], color='#6C63FF'){
-  const ctx = $('miniChart').getContext('2d');
-  if(miniChart) miniChart.destroy();
-  miniChart = new Chart(ctx, {
-    type: 'line',
-    data: { labels, datasets:[{ data: values, borderColor: color, backgroundColor: hexToRgba(color,0.12), fill:true, tension:0.35, pointRadius:0 }]},
-    options: { plugins:{legend:{display:false}}, responsive:true, maintainAspectRatio:false, animation:{duration:600,easing:'easeOutQuart'}, scales:{x:{display:false}, y:{display:false}} }
-  });
-}
-function hexToRgba(hex,a=1){ hex=hex.replace('#',''); const r=parseInt(hex.substring(0,2),16),g=parseInt(hex.substring(2,4),16),b=parseInt(hex.substring(4,6),16); return `rgba(${r},${g},${b},${a})`; }
-
-/* Integration helpers (localStorage demo) */
-function loadIntegrations(){ return JSON.parse(localStorage.getItem('fluentbiz_integrations') || '{}'); }
-function getActiveIntegration(){ const s = loadIntegrations(); const keys = Object.keys(s); if(!keys.length) return null; return s[keys[keys.length-1]]; }
-function updateActiveIntegrationsUI(){ const store = loadIntegrations(); $('activeIntegrations').innerText = Object.keys(store).length ? Object.keys(store).map(k=>store[k].key + ' (' + store[k].type + ')').join(', ') : 'Belum ada integrasi'; }
-
-/* Renderers for each integration type */
-function renderSeller(payload){
-  $('chartTitle').innerText = 'Tren Penjualan (Seller)';
-  $('chartSubtitle').innerText = 'Penjualan & revenue 7 hari';
-  initPrimaryChart('bar', payload.chart.labels, [{ label:'Revenue', data: payload.chart.values, backgroundColor:'#6C63FF' }]);
-  renderMiniChart(payload.chart.labels, payload.chart.values, '#6C63FF');
-  $('mRevenue').innerText = payload.metrics.totalRevenue ? formatRp(payload.metrics.totalRevenue) : '-';
-  $('mOrders').innerText = payload.metrics.totalOrders || '-';
-  $('mUsers').innerText = payload.metrics.avgDAU || '-';
-  $('mGrowth').innerText = payload.metrics.growth || '-';
-  $('mRevenueDelta').innerText = payload.metrics.growth || '-';
-  $('mConv').innerText = payload.metrics.conv || '2.6%';
-  $('mRet').innerText = payload.metrics.retention || '28%';
-  $('detailTop').innerText = payload.extra?.topProduct || 'Produk A — 1.2k sold';
-  $('detailRegion').innerText = payload.extra?.regions || 'Jakarta, Bandung';
-  $('detailAlert').innerText = payload.extra?.alert || '—';
-  $('aiInsight').innerText = payload.insight || 'Produk naik minggu ini — fokus stok & promos.';
-}
-
-function renderCompany(payload){
-  $('chartTitle').innerText = 'Revenue vs Cost (Company)';
-  $('chartSubtitle').innerText = 'Bulanan (6 bulan)';
-  initPrimaryChart('line', payload.chart.labels, [
-    { label:'Revenue', data: payload.chart.revenue, borderColor:'#2575FC', fill:false },
-    { label:'Cost', data: payload.chart.cost, borderColor:'#F97316', fill:false }
-  ]);
-  renderMiniChart(payload.chart.labels, payload.chart.revenue || [], '#2575FC');
-  $('mRevenue').innerText = payload.metrics.totalRevenue ? formatRp(payload.metrics.totalRevenue) : '-';
-  $('mOrders').innerText = '-';
-  $('mUsers').innerText = payload.metrics.employees || '-';
-  $('mGrowth').innerText = payload.metrics.avgMargin || '-';
-  $('detailTop').innerText = 'Margin: ' + (payload.metrics.avgMargin || '-');
-  $('detailRegion').innerText = payload.extra?.branch || 'HQ Jakarta • Branch 4';
-  $('detailAlert').innerText = payload.extra?.alert || '—';
-  $('aiInsight').innerText = payload.insight || 'Laba bersih meningkat.';
-}
-
-function renderApp(payload){
-  $('chartTitle').innerText = 'DAU (App)';
-  $('chartSubtitle').innerText = 'Pengguna aktif harian (7 hari)';
-  initPrimaryChart('line', payload.chart.labels, [{ label:'DAU', data: payload.chart.values, borderColor:'#10B981', fill:false }]);
-  renderMiniChart(payload.chart.labels, payload.chart.values || [], '#10B981');
-  $('mRevenue').innerText = '-';
-  $('mOrders').innerText = '-';
-  $('mUsers').innerText = payload.metrics.avgDAU || '-';
-  $('mGrowth').innerText = payload.metrics.growth || '-';
-  $('detailTop').innerText = payload.extra?.topFeature || 'Feature X — 42% usage';
-  $('detailRegion').innerText = payload.extra?.topCountry || 'Indonesia';
-  $('detailAlert').innerText = payload.extra?.alert || '—';
-  $('aiInsight').innerText = payload.insight || 'Engagement naik.';
-}
-
-function renderOverview(){
-  $('chartTitle').innerText = 'Overview';
-  $('chartSubtitle').innerText = 'Hubungkan sumber data untuk insight';
-  initPrimaryChart('bar',['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],[{label:'Example',data:[100,200,150,300,220,340,400],backgroundColor:'#6C63FF'}]);
-  renderMiniChart(['W1','W2','W3','W4'],[120,200,180,240],'#6C63FF');
-  $('mRevenue').innerText='-'; $('mOrders').innerText='-'; $('mUsers').innerText='-'; $('mGrowth').innerText='-';
-  $('aiInsight').innerText='Tidak ada integrasi aktif — klik Integrations untuk mulai.';
-}
-
-/* Backend call with demo fallback */
-async function analyzeWithBackend(type){
-  showOverlay('Meminta analisis ke backend...');
-  try{
-    const res = await fetch(`${BACKEND_BASE}/autopilot/run`, {
-      method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ type })
-    });
-    if(!res.ok) throw new Error('HTTP ' + res.status);
-    const data = await res.json();
-    hideOverlay();
-    return data;
-  }catch(e){
-    hideOverlay();
-    return demoAnalyze(type);
-  }
-}
-
-/* Demo analyzer (shape matches backend expected) */
-function demoAnalyze(type){
-  $('lastUpdated').innerText = new Date().toLocaleTimeString();
-  if(type === 'seller'){
-    const labels=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
-    const values=[420000,480000,510000,470000,550000,620000,700000].map(v=>Math.round(v*(0.9+Math.random()*0.25)));
-    return { status:'ok', type:'seller', metrics:{ totalRevenue: values.reduce((a,b)=>a+b,0), totalOrders:120+Math.floor(Math.random()*50), growth:'+'+(8+Math.floor(Math.random()*6))+'%' }, chart:{ labels, values }, insight:`Produk naik ${8+Math.floor(Math.random()*6)}% minggu ini.`, extra:{ topProduct:'Produk A', regions:'Jakarta, Bandung', alert: Math.random()>0.92?'Return rate tinggi':'—' } };
-  } else if(type === 'company'){
-    const labels=['May','Jun','Jul','Aug','Sep','Oct'];
-    const revenue=[4200000,4800000,5100000,4700000,5500000,6200000].map(v=>Math.round(v*(0.9+Math.random()*0.25)));
-    const cost=revenue.map(r=>Math.round(r*(0.55+Math.random()*0.15)));
-    const profit=revenue.map((r,i)=>r-cost[i]); const avgMargin=Math.round(profit.reduce((a,b)=>a+b,0)/revenue.reduce((a,b)=>a+b,0)*100);
-    return { status:'ok', type:'company', metrics:{ totalRevenue: revenue.reduce((a,b)=>a+b,0), avgMargin: avgMargin+'%', employees: 40+Math.floor(Math.random()*10)}, chart:{ labels, revenue, cost }, insight:`Laba bersih meningkat ${avgMargin}% dibanding bulan lalu.`, extra:{ branch:'HQ Jakarta', alert: Math.random()>0.95?'Biaya naik':'—' } };
-  } else if(type === 'app'){
-    const labels=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
-    const values=[1200,1500,1700,1800,1900,2100,2300].map(v=>Math.round(v*(0.9+Math.random()*0.25)));
-    const avg=Math.round(values.reduce((a,b)=>a+b,0)/values.length);
-    return { status:'ok', type:'app', metrics:{ avgDAU: avg, growth:'+'+(3+Math.floor(Math.random()*7))+'%' }, chart:{ labels, values }, insight:`Engagement naik ${3+Math.floor(Math.random()*6)}% minggu ini.`, extra:{ topFeature:'Push Notification', topCountry:'Indonesia', alert: Math.random()>0.9?'Crash spike detected':'—' } };
-  } else return { status:'ok', type:null, metrics:{}, chart:{labels:[], values:[]}, insight:'No integration' };
-}
-
-/* Run Autopilot: call backend or demo, then render */
-async function runAutopilotNow(){
-  const integration = getActiveIntegration();
-  if(!integration) return alert('Belum ada integrasi aktif. Silakan connect integrations dulu.');
-  showOverlay('AI FluentBiz sedang menganalisis ' + integration.type + ' ...');
-  const data = await analyzeWithBackend(integration.type);
-  if(!data || data.status !== 'ok'){ hideOverlay(); return alert('Analisis gagal atau data kosong'); }
-
-  if(data.type === 'seller'){
-    const payload = { metrics: data.metrics || {}, chart: { labels: data.chart.labels || [], values: data.chart.values || data.chart.values || [] }, insight: data.insight, extra: data.extra || {} };
-    renderSeller(payload);
-  } else if(data.type === 'company'){
-    const payload = { metrics: data.metrics || {}, chart: { labels: data.chart.labels || [], revenue: data.chart.revenue || [], cost: data.chart.cost || [] }, insight: data.insight, extra: data.extra || {} };
-    renderCompany(payload);
-  } else if(data.type === 'app'){
-    const payload = { metrics: data.metrics || {}, chart: { labels: data.chart.labels || [], values: data.chart.values || [] }, insight: data.insight, extra: data.extra || {} };
-    renderApp(payload);
-  } else {
-    renderOverview();
-  }
-
-  hideOverlay();
-  $('lastUpdated').innerText = new Date().toLocaleTimeString();
-  addRecentEvent({ id:'#A'+Date.now(), type: integration.type, value: data.metrics.totalRevenue ? formatRp(data.metrics.totalRevenue) : data.metrics.avgDAU || '-' });
-}
-window.runAutopilotNow = runAutopilotNow;
-
-/* Autopilot toggle */
-function toggleAutopilot(){ autopilot = !autopilot; localStorage.setItem('fluentbiz_autopilot', autopilot ? 'true' : 'false'); $('autoBtn').innerText = autopilot ? 'Disable' : 'Enable'; if(autopilot) startAutopilot(); else stopAutopilot(); }
-function startAutopilot(){ runAutopilotNow(); autopilotInterval = setInterval(runAutopilotNow, 30000); } // demo: 30s
-function stopAutopilot(){ if(autopilotInterval) clearInterval(autopilotInterval); autopilotInterval = null; }
-window.toggleAutopilot = toggleAutopilot;
-
-/* Recent events */
-function addRecentEvent(ev){ const tbody = $('recentTable'); const row = document.createElement('tr'); row.innerHTML = `<td>${ev.id}</td><td>${ev.type}</td><td>${ev.value}</td>`; tbody.prepend(row); }
-
-/* Simulate connect (demo multi-marketplace) */
-function simulateConnect(type, key){
+/* quick connect demo: stores integration and redirects to dashboard */
+function quickConnect(key){
+  const type = (['shopee','tokopedia','lazada','tiktok'].includes(key)) ? 'seller' : key === 'erp' ? 'company' : 'app';
   const id = `${key}_${Date.now()}`;
   const store = JSON.parse(localStorage.getItem('fluentbiz_integrations')||'{}');
   store[id] = { id, key, type, connectedAt: new Date().toISOString(), demo:true };
   localStorage.setItem('fluentbiz_integrations', JSON.stringify(store));
-  updateActiveIntegrationsUI();
-  // auto-run analysis once connected
-  setTimeout(()=> runAutopilotNow(), 400);
-  alert(`Connected (demo): ${key} as ${type}`);
+  updateActive();
+  // redirect to appropriate dashboard
+  if(type==='seller') location.href='dashboard-seller.html';
+  else if(type==='company') location.href='dashboard-company.html';
+  else location.href='dashboard-app.html';
 }
-window.simulateConnect = simulateConnect;
+function connectDemo(type,key){ quickConnect(key); }
+function toManual(){ location.href='dashboard-manual.html'; }
+function openIntegrations(){ goPage({currentTarget:document.querySelector('[data-page="integrations"]')},'integrations'); }
+function saveProfile(){ const v = document.getElementById('profileName').value.trim(); if(!v) return alert('Isi nama'); const cur=JSON.parse(localStorage.getItem('fluentbiz_current')); cur.name=v; localStorage.setItem('fluentbiz_current',JSON.stringify(cur)); alert('Profile saved (demo)'); location.reload(); }
+function logout(){ localStorage.removeItem('fluentbiz_current'); location.href='index.html'; }
+function updateActive(){ const store=JSON.parse(localStorage.getItem('fluentbiz_integrations')||'{}'); document.getElementById('activeList').innerText = Object.keys(store).length ? Object.keys(store).map(k=>store[k].key+' ('+store[k].type+')').join(', ') : 'Belum ada integrasi'; }
+updateActive();
 
-/* Quick integration input */
-function openIntegrations(){
-  const choice = prompt('Tulis demo connect: shopee / tokopedia / lazada / tiktok / erp / app\nContoh: shopee');
-  if(!choice) return;
-  const c = choice.trim().toLowerCase();
-  if(['shopee','tokopedia','lazada','tiktok'].includes(c)) simulateConnect('seller', c);
-  else if(c === 'erp') simulateConnect('company','erp');
-  else if(c === 'app') simulateConnect('app','sdk');
-  else alert('Pilihan tidak dikenali.');
-}
-
-/* Navigation helper */
-function switchPage(e, page){
-  document.querySelectorAll('main .page').forEach(p=>p.style.display='none');
-  document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active'));
-  const el = document.getElementById(page);
-  if(el) el.style.display = 'block';
-  e.currentTarget.classList.add('active');
-}
-window.switchPage = switchPage;
-
-/* Utilities: subscriptions/profile */
-function activateTrial(){ localStorage.setItem('fluentbiz_trialStart', new Date().toISOString()); alert('Trial activated (demo)'); $('trialBadge').innerText = '7 hari tersisa'; }
-function subscribe(){ alert('Subscribe flow placeholder — hubungkan Stripe / Midtrans'); }
-function saveProfile(){ const v = $('profileName').value.trim(); if(!v) return alert('Isi nama'); const cur = JSON.parse(localStorage.getItem('fluentbiz_current')); cur.name = v; localStorage.setItem('fluentbiz_current', JSON.stringify(cur)); $('welcomeTitle').innerText = `Selamat datang, ${v} 👋`; alert('Profile updated (demo)'); }
-function doLogout(){ localStorage.removeItem('fluentbiz_current'); location.href='index.html'; }
-
-/* Init: customers demo, integrations UI, start */
-function initialRender(){
-  // sample customers
-  const customers = [{id:'#C001',name:'Andi',joined:'2025-08-10'},{id:'#C002',name:'Sari',joined:'2025-09-01'}];
-  $('customerTable').innerHTML = customers.map(c => `<tr><td>${c.id}</td><td>${c.name}</td><td>${c.joined}</td></tr>`).join('');
-  updateActiveIntegrationsUI();
-  const primary = getActiveIntegration();
-  if(primary) runAutopilotNow(); else renderOverview();
-  if(autopilot) startAutopilot();
-
-  // analytics chart demo
-  const anCtx = $('analyticsChart').getContext('2d');
-  new Chart(anCtx, { type:'line', data:{ labels:['Jan','Feb','Mar','Apr','May','Jun'], datasets:[{ label:'Revenue', data:[100000,150000,170000,200000,240000,280000], borderColor:'#2575FC', fill:false }]}, options:{plugins:{legend:{display:false}},responsive:true,maintainAspectRatio:false } });
-}
-initialRender();
+/* theme toggle: store preference */
+function toggleTheme(){ const cur=document.documentElement.getAttribute('data-theme')||'light'; const next = cur==='light'?'dark':'light'; document.documentElement.setAttribute('data-theme',next); localStorage.setItem('fluentbiz_theme',next); }
+(function(){ const saved = localStorage.getItem('fluentbiz_theme'); if(saved) document.documentElement.setAttribute('data-theme',saved); })();
 </script>
 </body>
 </html>
