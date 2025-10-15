@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="id" data-theme="light">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>FluentBiz — Seller Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Poppins:wght@600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+:root{--blue:#2563EB;--violet:#6C63FF;--muted:#6b7280;--bg:#f7fbff;--panel:#fff;--border:rgba(7,16,42,0.06)}
+[data-theme="dark"]{--bg:#07102a;--panel:linear-gradient(180deg,#07102a,#041226);--muted:#9aa4b2;}
+*{box-sizing:border-box;font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial}
+body{margin:0;background:var(--bg);color:#07102a;min-height:100vh}
+.wrap{max-width:1200px;margin:18px auto;padding:16px}
+.header{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.brand{font-weight:800;font-family:Poppins;color:var(--blue)}
+.small{font-size:13px;color:var(--muted)}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:12px}
+.card{background:var(--panel);padding:14px;border-radius:12px;border:1px solid var(--border);box-shadow:0 8px 24px rgba(16,24,40,0.03)}
+.metric .label{color:var(--muted);font-size:13px}
+.metric .value{font-weight:800;font-size:20px;margin-top:6px}
+.row{display:grid;grid-template-columns:2fr 1fr;gap:12px;margin-top:12px}
+.canvas-full{width:100% !important;display:block}
+#salesChart{height:320px!important}
+#stockChart{height:140px!important}
+.btn{padding:8px 12px;border-radius:8px;border:0;cursor:pointer;font-weight:700}
+.btn.primary{background:linear-gradient(90deg,var(--blue),var(--violet));color:white}
+@media(max-width:980px){ .grid4{grid-template-columns:repeat(2,1fr)} .row{grid-template-columns:1fr} }
+.fade{transform:translateY(10px);opacity:0;animation:fade .45s forwards}
+@keyframes fade{to{transform:none;opacity:1}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="header fade">
+    <div>
+      <div class="brand">FluentBiz</div>
+      <div class="small" id="sellerSub">Seller Dashboard</div>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <div class="small">Trial</div>
+      <div id="trial" style="font-weight:800">—</div>
+      <button class="btn" onclick="goHome()">← Home</button>
+      <button class="btn primary" id="analyzeBtn" onclick="runAnalysis()">🧠 Analisis Sekarang</button>
+    </div>
+  </div>
+
+  <div class="grid4 fade" style="margin-top:12px">
+    <div class="card metric"><div class="label">Total Revenue (30d)</div><div class="value" id="rev">—</div></div>
+    <div class="card metric"><div class="label">Orders (30d)</div><div class="value" id="orders">—</div></div>
+    <div class="card metric"><div class="label">Active SKUs</div><div class="value" id="skus">—</div></div>
+    <div class="card metric"><div class="label">Growth</div><div class="value" id="growth">—</div></div>
+  </div>
+
+  <div class="row fade">
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div style="font-weight:800">Tren Penjualan</div>
+        <div class="small" id="updatedAt">—</div>
+      </div>
+      <canvas id="salesChart" class="canvas-full"></canvas>
+      <div style="display:flex;gap:12px;margin-top:12px">
+        <div style="flex:1">
+          <div class="small">Produk Terlaris</div>
+          <div id="topProduct" style="font-weight:800">—</div>
+        </div>
+        <div style="flex:1">
+          <div class="small">Pendapatan Bulanan</div>
+          <div id="monthRevenue" style="font-weight:800">—</div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="card">
+        <div style="font-weight:800">Stok & Alerts</div>
+        <canvas id="stockChart" style="margin-top:12px"></canvas>
+        <div class="small" id="stockNote" style="margin-top:8px">—</div>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <div style="font-weight:800">Integrasi</div>
+        <div class="small" id="intInfo" style="margin-top:8px">—</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* BACKEND: set base URL jika backend sudah dipasang */
+const BACKEND_BASE = ''; // contoh: 'http://localhost:3000'
+
+/* session check */
+const current = JSON.parse(localStorage.getItem('fluentbiz_current')||'null'); if(!current) location.href='index.html';
+document.getElementById('sellerSub').innerText = `Seller Dashboard — ${current.name || current.email.split('@')[0]}`;
+document.getElementById('trial').innerText = localStorage.getItem('fluentbiz_trialStart') ? `${Math.max(0,7 - Math.floor((Date.now()-new Date(localStorage.getItem('fluentbiz_trialStart')))/(1000*60*60*24)))} hari` : '—';
+
+const fmtRp = n => { try{return 'Rp '+Number(n).toLocaleString('id-ID')}catch(e){return n} };
+let salesChart, stockChart;
+
+/* chart inits */
+function initSales(labels, data){
+  const ctx = document.getElementById('salesChart').getContext('2d');
+  if(salesChart) salesChart.destroy();
+  salesChart = new Chart(ctx,{ type:'line', data:{ labels, datasets:[{label:'Revenue', data, borderColor:'#2563EB', fill:true, backgroundColor:'rgba(37,99,235,0.08)', tension:0.3}] }, options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}}}});
+}
+function initStock(labels,data){
+  const ctx = document.getElementById('stockChart').getContext('2d');
+  if(stockChart) stockChart.destroy();
+  stockChart = new Chart(ctx,{ type:'bar', data:{ labels, datasets:[{data, backgroundColor:'#6C63FF'}] }, options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}}}});
+}
+
+/* helper: get active integration (last) */
+function activeIntegration(){ const s=JSON.parse(localStorage.getItem('fluentbiz_integrations')||'{}'); const ks=Object.keys(s); return ks.length? s[ks[ks.length-1]]: null; }
+
+/* demo fallback */
+function demoData(){
+  const labels=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  const values=[420000,480000,510000,470000,550000,620000,700000].map(v=>Math.round(v*(0.9+Math.random()*0.2)));
+  return {
+    status:'ok',
+    metrics:{ totalRevenue: values.reduce((a,b)=>a+b,0), totalOrders: 120+Math.floor(Math.random()*80), skus: 84, growth: '+'+(8+Math.floor(Math.random()*7))+'%' },
+    chart:{ labels, values },
+    topProduct: 'Kaos Polos Premium',
+    monthRevenue: values.reduce((a,b)=>a+b,0),
+    stock: { labels:['P1','P2','P3','P4'], values:[12,4,30,2], note: '2 SKU hampir habis' }
+  };
+}
+
+/* call backend or fallback demo */
+async function fetchSeller(){
+  const integration = activeIntegration();
+  if(!BACKEND_BASE) return demoData();
+  try{
+    const res = await fetch(`${BACKEND_BASE}/analyze/seller`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ integration })});
+    if(!res.ok) throw new Error('http '+res.status);
+    return await res.json();
+  }catch(e){ console.warn(e); return demoData(); }
+}
+
+async function runAnalysis(){
+  const btn = document.getElementById('analyzeBtn'); btn.disabled=true; btn.innerText='Memproses...';
+  const data = await fetchSeller();
+  btn.disabled=false; btn.innerText='🧠 Analisis Sekarang';
+  if(!data || data.status==='error') return alert('Gagal analisis');
+  document.getElementById('rev').innerText = fmtRp(data.metrics.totalRevenue || data.monthRevenue || data.metrics.totalRevenue);
+  document.getElementById('orders').innerText = (data.metrics.totalOrders||data.metrics.totalOrders) || '-';
+  document.getElementById('skus').innerText = data.metrics.skus || '-';
+  document.getElementById('growth').innerText = data.metrics.growth || data.metrics.growth || '-';
+  initSales(data.chart.labels || data.chart.labels, data.chart.values || data.chart.values);
+  initStock(data.stock.labels || data.stock.labels, data.stock.values || data.stock.values);
+  document.getElementById('topProduct').innerText = data.topProduct || data.metrics.topProduct || '-';
+  document.getElementById('monthRevenue').innerText = fmtRp(data.monthRevenue || data.metrics.totalRevenue);
+  document.getElementById('intInfo').innerText = activeIntegration()? `${activeIntegration().key} (${activeIntegration().type})` : 'Belum ada integrasi';
+  document.getElementById('stockNote').innerText = data.stock?.note || '-';
+  document.getElementById('updatedAt').innerText = new Date().toLocaleTimeString();
+}
+
+/* navigation */
+function goHome(){ location.href='home.html'; }
+
+</script>
+</body>
+</html>
